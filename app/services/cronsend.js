@@ -102,14 +102,14 @@ class CronSend {
       const { mobtels } = dumData;
 
       let i = 0;
-      let nextText = () => {
+      function nextText(){
           
           if(i > 5) {
               FsServices.setNotBusyDevice(com);
               return console.log('Tamaa na!')
           }
       let mobInt = 0;
-      let nextMob = () => {
+      function nextMob(){
           let mob = mobtels[mobInt];
           if(!mob) {
               console.log(mob);

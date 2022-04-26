@@ -119,7 +119,7 @@ class SmsProcess {
            // return 'Cron is running!'
     }
 
-    static start = () => {
+    static start(){
         // const { interval } = this.state;
 
         // console.log(this.star)
@@ -207,7 +207,7 @@ static getPorts(){
     return smsPorts;
 }
 
-static checkStatus = () => {
+static checkStatus() {
         return smsPorts;
 }
 }
