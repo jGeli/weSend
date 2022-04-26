@@ -109,7 +109,7 @@ class SmsProcess {
         return this.status;
     }
 
-    static createMessage = async ({}) => {
+    static async createMessage(){
 
           let mobtels = MessageModel.getMobtels();
           console.log(mobtels);
