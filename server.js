@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
-const port = process.env.PORT || 23000;
+const port = process.env.PORT || 23005;
 const app = express();
 
 var corsOptions = {
@@ -20,14 +20,13 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
 
 const db = require("./app/models");
-// db.sequelize.sync(
-//     // {force: true}
-//     ).then(() => { 
-//     // initial();
-//   });
+db.sequelize.sync(
+    ).then(() => { 
+    // initial();
+  });
 
 
-require('./app/routes/port.routes')(app);
+require('./app/routes/sms.routes')(app);
 
 const server = http.createServer(app);
 

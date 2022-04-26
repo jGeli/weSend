@@ -29,6 +29,9 @@ module.exports = (sequelize, Sequelize) => {
       totalSent: {
         type: Sequelize.INTEGER,
         defaultValue: 0
+      },
+      userId: {
+        type: Sequelize.INTEGER
       }
     });
   

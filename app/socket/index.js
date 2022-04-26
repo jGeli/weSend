@@ -13,7 +13,7 @@ let portDev = [];
 
 
 
-setTimeout(() => {
+setInterval(() => {
  devs = CronSend.getActiveDevices();
  devices = devs.devices;
  portDev = devs.portDev;

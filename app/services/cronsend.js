@@ -277,7 +277,6 @@ class CronSend {
     });
   }
 
-
         async initDevice(val){
             
         if(!val) return console.log('No Path')
