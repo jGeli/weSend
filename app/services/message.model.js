@@ -176,7 +176,7 @@ class MessageModel{
 
         for(let ind = 0; ind < val.length; ind++){
             if(!val[ind]) return console.log('Device Not Defined!')
-            let dv = await Devices.findOne({where: { serial: val[ind].serial }});
+            let dv = await Devices.findOne({where: { path: val[ind].path }});
             if(!dv) {
                  Devices.create(val[ind])
                 .then(doc => {
@@ -187,7 +187,7 @@ class MessageModel{
                     return err
                 })
             } else {
-            Devices.update({isActive: false, isBusy: false},{where: { serial: val[ind].serial  }})
+            Devices.update({isActive: false, isBusy: false},{where: { path: val[ind].path  }})
             .then(doc => {
                 return doc;
             })

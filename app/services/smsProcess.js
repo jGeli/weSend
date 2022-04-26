@@ -160,7 +160,7 @@ class SmsProcess {
               let obj = [];
                 result.map(a => {
                     obj.push({
-                        serial: a.serialNumber,
+                        // serial: a.serialNumber,
                         path: a.path,
                         isBusy: false
                     })

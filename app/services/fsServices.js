@@ -144,7 +144,7 @@ class FsServices {
                 return ind ? {
                      ...a 
                 } : {
-                    serial: a.serial, path: a.path, isBusy: false, isActive: false
+                     path: a.path, isBusy: false, isActive: false
                 }
                     // ind ? arr.push(ind) : arr.push({serial: a.serialNumber, path: a.path, isBusy: false, isActive: false});
             })

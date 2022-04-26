@@ -393,12 +393,14 @@ static getActiveDevices(){
     console.log(err)
     let arr = [];
     result && result.map(a => {
+      if(a.path && a.vendorId == '1a86'){
        arr.push({
-         serial: a.serialNumber,
+        //  serial: a.serialNumber,
          path: a.path,
          isActive: false,
          isBusy: false
        })
+      }
      })
 
   await MessageModel.initDevices(arr)
