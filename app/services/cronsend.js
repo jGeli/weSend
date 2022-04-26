@@ -161,16 +161,19 @@ class CronSend {
                 // FsServices.setNotBusyDevice(com);
                 return console.log('Tamaa na!')
             }
-            console.log(arr[i])
           if(!arr[i] || (arr[i] && !arr[i].Mobtel)) return console.log('No Mobtel Data!')  
             let { id, Mobtel } = arr[i];
           let mob = format_number(Mobtel);
             // console.log(device)
-         device && device.sendSMS(mob, `${i} --- ${content}`, isFlash, async (result) => {
+         device && device.sendSMS(mob, `${content}`, true, async (result) => {
             if(result && result.status == 'success' && result.data.recipient){
-                    await MessageModel.setRecipientSent(id)
-                    i++
-                    return nextText(arr);
+              device.sendSMS(mob, `${content}`, false, async (result) => {
+                if(result && result.status == 'success' && result.data.recipient){
+                        await MessageModel.setRecipientSent(id)
+                        i++
+                        return nextText(arr);
+                 }
+             });
              }
          });
       }
@@ -393,7 +396,7 @@ static getActiveDevices(){
     console.log(err)
     let arr = [];
     result && result.map(a => {
-      if(a.path && a.vendorId == '1a86'){
+      if(a.path && String(a.vendorId).toLowerCase() == String('1a86').toLowerCase()){
        arr.push({
         //  serial: a.serialNumber,
          path: a.path,
