@@ -123,7 +123,7 @@ class MessageModel{
     static getMobtels(val, cb){
         console.log(val)
         let sqlQuery = `SELECT Mobtel, Serial
-        FROM smsalldbdev.mobtels ORDER BY id limit ${val};`
+        FROM smsalldbdev.mobtels ORDER BY id limit ${val}, 10000;`
 
        return smsDb.query(sqlQuery, function (error, results, fields) {
             // console.log(results)
