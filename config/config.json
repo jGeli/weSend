@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "root",
-    "password": null,
-    "database": "wesend",
+    "username": "jim-user",
+    "password": "Password@420230",
+    "database": "wesenddev",
     "host": "localhost",
     "dialect": "mysql"
   },
@@ -14,9 +14,9 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
+    "username": "jim-user",
+    "password": "Password@420230",
+    "database": "wesenddev",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }
