@@ -43,9 +43,9 @@ server.listen(port, () => console.log(`Listening on port ${port}`));
 
 // const CronSend = require('./app/services/cronsend');
 const io = socketIo(server, {
-  cors: "*"
+path: '/api/socket',
+cors: "*"
 });
-
 // let cron1 = new CronSend({
 //   interval: '.1'
 // });
