@@ -370,7 +370,7 @@ let timeout = setTimeout(cb, mm)
 
 return () => {}
 }
-    cron(.3, () => {
+    cron(.4, () => {
         CronSend.processSms();
     //   return this.process();
     });
@@ -494,7 +494,7 @@ const intPorts = async (arrList) => {
   }
   
   
-  cron(.05, async () => {
+  cron(.03, async () => {
     
     let dvs = await MessageModel.getDevices();
     gsmPorts = dvs;
