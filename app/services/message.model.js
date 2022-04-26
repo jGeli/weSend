@@ -64,7 +64,7 @@ class MessageModel{
             [Op.or]: [{ [Op.and]: [{ isCompleted: false }, {isProcessing: false }, {isDeleted: false}]}, { [Op.and]: [{isProcessing: true}, {description: com }, {isCompleted: false }, {isDeleted: false}] }] 
         }, 
         // limit: 1,
-        include: [  { model: Recipient,  as: 'Mobtels', where: { isSent: false }, limit: 10, required: false}],
+        include: [  { model: Recipient,  as: 'Mobtels', where: { isSent: false }, limit: 100, required: false}],
         });
         return message
     }
