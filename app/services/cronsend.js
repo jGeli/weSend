@@ -389,6 +389,8 @@ static getActiveDevices(){
     //  console.log('IIIIIIIIIIINNNNNNNNNNNNNIIIIIIIIIIIIIIIIIIIT!!')
      console.log('Initializing Ports!')
   serialPort.list( async (err,result) => {
+    console.log(result)
+    console.log(err)
     let arr = [];
     result && result.map(a => {
        arr.push({
