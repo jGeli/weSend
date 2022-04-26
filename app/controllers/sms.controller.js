@@ -5,6 +5,7 @@ const Op = db.Sequelize.Op;
 
 const CronSend = require('../services/cronsend');
 const MessageController = require('./message.controller');
+const { dataForm } = require('../utils/formatter');
 
 
 let devices = [];
@@ -62,7 +63,11 @@ exports.getSmsAll = (req, res) => {
 
       let arr = [];
         let { messages, totalItems, totalPages,  currentPage } = getPagingData(data, page, limit);
-      res.status(200).json({totalItems, totalPages,  currentPage, messages});
+        
+        messages.forEach(ab => {
+            arr.push(dataForm.smsForm(ab));
+        })
+        res.status(200).json({totalItems, totalPages,  currentPage, messages: arr});
     })
     .catch(err => {
       console.log(err)

@@ -3,12 +3,17 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
+const path = require('path')
 const port = process.env.PORT || 23005;
 const app = express();
+
 
 var corsOptions = {
   origin: "*"
 };
+
+app.use(express.static(path.join(__dirname+'/client/', 'build')));
+
 
 app.use(cors(corsOptions));
 
@@ -17,6 +22,7 @@ app.use(express.json({limit: '50mb'}));
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+
 
 
 const db = require("./app/models");
