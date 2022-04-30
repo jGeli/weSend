@@ -17,7 +17,7 @@ serialportgsm.list((err,result) => {
 
 function crun(){
 
-    const ls = spawn("node", ["gsmCron0.js"]);
+    const ls = spawn("node", ["gsmCron1.js"]);
 
     
     ls.stdout.on("data", (data) => {
