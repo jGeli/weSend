@@ -1,13 +1,12 @@
 const serialportgsm = require('serialport-gsm');
-const MessageModel = require('../app/services/message.model');
-const { format_number } = require('../app/utils/formatter');
+const MessageModel = require('./app/services/message.model');
+const { format_number } = require('./app/utils/formatter');
 let options = {
     baudRate: 19200,
     dataBits: 8,
     parity: 'none',
     stopBits: 1,
     xon: false,
-    rtscts: false,
     rtscts: false,
     xoff: false,
     xany: false,
@@ -28,16 +27,21 @@ const GsmModem = serialportgsm.Modem();
 
 
 serialportgsm.list((err,result) => {
-        port = result[no].path;
+        
+        port = result[no] && result[no].path ;
         if(port){
-            GsmModem.open(result[no].path, options)
+        GsmModem.open(port, options)
         }
 });
 
 function stopDev(){
     // console.log('stop')
     // console.log(GsmModem.close())
-   GsmModem.close();
+    if(port){
+        GsmModem.close();
+    } else {
+        process.exit
+    }
 }
 
 // function initDev(){
@@ -65,24 +69,20 @@ class GsmService{
     //Get Port
     // let GsmModem = new serialportgsm.Modem();
 
-    //  let Gsm = new GsmModem;
-    static getDevice(val){
-
-    }
 
     static async processSms(){
                   //Get Message
-       let recipient = await MessageModel.getUnprocessRecipient();
-       console.log('Recipientsss!')
-       console.log(recipient)
-       if(recipient) {
+        if(!port) {
+            stopDev()
+            return console.log('No Device!')
+        }
 
-            console.log(recipient)
-           let { id, Mobtel, Message: { content, isFlash } } = recipient
-            console.log(Mobtel)
-            console.log(content)
-            console.log(isFlash)
-            console.log(id)
+
+       let recipient = await MessageModel.getUnprocessRecipient();
+       if(recipient && port) {
+
+        let { id, Mobtel, Message: { content, isFlash } } = recipient
+       
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, async (result) => {
                 if(result && result.status == 'success' && result.data.recipient){
                    await MessageModel.setRecipientSent(id, port)
