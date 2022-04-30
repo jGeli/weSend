@@ -1,12 +1,13 @@
 const serialportgsm = require('serialport-gsm');
-const MessageModel = require('./app/services/message.model');
-const { format_number } = require('./app/utils/formatter');
+const MessageModel = require('../app/services/message.model');
+const { format_number } = require('../app/utils/formatter');
 let options = {
     baudRate: 19200,
     dataBits: 8,
     parity: 'none',
     stopBits: 1,
     xon: false,
+    rtscts: false,
     rtscts: false,
     xoff: false,
     xany: false,

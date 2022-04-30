@@ -1,13 +1,13 @@
 const { spawn } = require("child_process");
-const db = require('./app/models');
-const dbs = require('./app/configs/smsdb.config');
-const MessageModel = require("./app/services/message.model");
+const db = require('../app/models');
+const dbs = require('../app/configs/smsdb.config');
+const MessageModel = require("../app/services/message.model");
 
 
 
 function crun(){
 
-    const ls = spawn("node", ["gsmCron.js"]);
+    const ls = spawn("node", ["gsmCron0.js"]);
 
     
     ls.stdout.on("data", (data) => {
@@ -35,8 +35,6 @@ function init(){
 
 
 dbs.getConnection(function(err, connection) {
-    // console.log('connecting')
-    // console.log(err)
 
       if(err) return console.log('DB Error!');
       console.log('Db Connected')
@@ -57,7 +55,6 @@ dbs.getConnection(function(err, connection) {
   setInterval( async () => {
     let messages = await MessageModel.getIncompleteMessage();
     // console.log(messages.length)
-    console.log(messages)
     messages.forEach((a) => {
         let { id, Mobtels } = a;
         let ind = Mobtels.find(ab => !ab.isSent);
@@ -65,13 +62,13 @@ dbs.getConnection(function(err, connection) {
             MessageModel.setMessageComplete(id);
         }
     })
-}, 2000)
+}, 10000)
 
 }
 
-// init();
+init();
 
-MessageModel.resetMessages()
+// MessageModel.resetMessages()
 
 
 

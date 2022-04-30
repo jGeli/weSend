@@ -1,5 +1,6 @@
 const dbConfig = require("../configs/db.config.js");
-console.log(dbConfig.USER)
+console.log(dbConfig)
+console.log('Wewewew')
 const Sequelize = require("sequelize");
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,

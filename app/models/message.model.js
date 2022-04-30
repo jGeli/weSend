@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const Message = sequelize.define("Messages", {
+    const Message = sequelize.define("messages", {
       content: {
         type: Sequelize.STRING
       },
@@ -33,6 +33,8 @@ module.exports = (sequelize, Sequelize) => {
       userId: {
         type: Sequelize.INTEGER
       }
+    }, {
+      timestamps: true
     });
   
     return Message;

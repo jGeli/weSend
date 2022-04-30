@@ -1,7 +1,6 @@
 require('dotenv').config();
 const mysql = require('mysql');
 
-
 const db = mysql.createPool({
     host     : process.env.SMSHOST,
     user     : process.env.SMSUSER,

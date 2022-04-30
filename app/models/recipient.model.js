@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const Recipient = sequelize.define("Recipients", {
+    const Recipient = sequelize.define("recipients", {
       Serial: {
         type: Sequelize.STRING
       },
