@@ -125,9 +125,9 @@ class MessageModel{
         let Msg = await Messages.findByPk(rcpt.messageId);
                    
 
-        let recipient = await Recipient.update({isSent: true, path: port},  { where: { id: id }, 
+        Recipient.update({isSent: true, path: port},  { where: { id: id }, 
         })
-        .then( async doc => {
+        .then(doc => {
             let totalSent = Msg.totalSent + 1;
             Messages.update({ totalSent }, {where: { id: Msg.id }});
             return doc
@@ -137,7 +137,7 @@ class MessageModel{
             return null
         })
         ;
-        console.log('Recipient Sent!')
+        // console.log('Recipient Sent!')
         return recipient
     }
 

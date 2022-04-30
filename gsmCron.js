@@ -95,12 +95,20 @@ class GsmService{
            console.log('gagagaga')
         console.log(content)
         console.log(!format_number(Mobtel))
-            GsmModem.sendSMS(format_number(Mobtel), content, isFlash, async (result) => {
+            GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
                 console.log(`Output --> ${JSON.stringify(result)}`)
                 if(result && result.status == 'success' && result.data.recipient){
-                   await MessageModel.setRecipientSent(id, port)
-                    GsmModem.close(() => process.exit);
+                    console.log('sent Naa!')
+                //   MessageModel.setRecipientSent(id, port)
+                //    .then(() => {
+                //     stopDev();
+                //    })
+                //    .catch(err => {
+                //        console.log(err)
+                //    })
+                    // GsmModem.close(() => process.exit);
                     // console.log('sending')
+                    stopDev();
                  }
              });
             } else {
