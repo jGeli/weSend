@@ -28,6 +28,7 @@ function crun(){
     
     ls.stderr.on("data", (data) => {
     console.error(`stderr: ${data}`);
+    crun();
     });
     
     ls.on("close", (code) => {
@@ -50,11 +51,30 @@ dbs.getConnection(function(err, connection) {
 
       if(err) return console.log('DB Error!');
       console.log('Db Connected')
+      crun();
+      setInterval( async () => {
+        console.log('Get Messages')
+        if(port){
+  
+      let messages = await MessageModel.getIncompleteMessage();
+      messages.forEach((a) => {
+          let { id, Mobtels } = a;
+          let ind = Mobtels.find(ab => !ab.isSent);
+          if(!ind){
+              console.log('Heellloow!')
+              MessageModel.setMessageComplete(id);
+          }
+      })
+      } else {
+          console.log('No Port Available')
+      }
+  
+  }, 30000)
 
     //   db.sequelize.sync(
     //     ).then(() => { 
         // initial();
-        return crun();
+        // return 
     
     // })
     // .catch(err => {
@@ -64,24 +84,7 @@ dbs.getConnection(function(err, connection) {
   });
 
 
-  setInterval( async () => {
-      console.log('Get Messages')
-      if(port){
 
-    let messages = await MessageModel.getIncompleteMessage();
-    messages.forEach((a) => {
-        let { id, Mobtels } = a;
-        let ind = Mobtels.find(ab => !ab.isSent);
-        if(!ind){
-            console.log('Heellloow!')
-            MessageModel.setMessageComplete(id);
-        }
-    })
-    } else {
-        console.log('No Port Available')
-    }
-
-}, 30000)
 
 }
 
