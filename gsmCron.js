@@ -30,6 +30,7 @@ serialportgsm.list((err,result) => {
         
         port = result[no] && result[no].path ;
         if(port){
+            console.log('Oppen')
         GsmModem.open(port, options)
         }
 });
@@ -79,15 +80,27 @@ class GsmService{
 
 
        let recipient = await MessageModel.getUnprocessRecipient();
+       let { id, Mobtel, Message: { content, isFlash } } = recipient
+       console.log()
+       console.log(!format_number(Mobtel))
+       console.log(port)
+       console.log(recipient && port)
+   
        if(recipient && port) {
+        if(!format_number(Mobtel)) {
+            await MessageModel.setRecipientSent(id, port)
+           return GsmModem.close(() => process.exit);
+        }
 
-        let { id, Mobtel, Message: { content, isFlash } } = recipient
-       
+           console.log('gagagaga')
+        console.log(content)
+        console.log(!format_number(Mobtel))
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, async (result) => {
+                console.log(`Output --> ${JSON.stringify(result)}`)
                 if(result && result.status == 'success' && result.data.recipient){
                    await MessageModel.setRecipientSent(id, port)
                     GsmModem.close(() => process.exit);
-                    console.log('sending')
+                    // console.log('sending')
                  }
              });
             } else {
@@ -123,7 +136,7 @@ class GsmService{
 
 setTimeout(() => {
 GsmService.processSms();
-}, 3000);
+}, 5000);
 
 
 

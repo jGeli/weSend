@@ -71,12 +71,13 @@ class MessageModel{
     }
 
     static async getUnprocessRecipient(){
+        console.log('Get Uprocess Recipient')
         let message = await Recipient.findOne({ where: { isSent: false  }, 
         // limit: 1,
         include: [  { model: Messages,  as: 'Message', required: false}],
         });
 
-        console.log(message)
+        // console.log(message)
 
         return message
     }
@@ -96,7 +97,8 @@ class MessageModel{
             // attributes: ['id', [sequelize.literal('(SELECT COUNT(*) FROM recipients WHERE recipients.isSent = false AND recipients.messageId = id)'), 'count']],
             include: [{
                 model: Recipient,
-                as: "Mobtels"
+                as: "Mobtels",
+                required: false
                 }],
         });
 

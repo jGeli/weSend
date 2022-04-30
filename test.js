@@ -51,20 +51,21 @@ dbs.getConnection(function(err, connection) {
       if(err) return console.log('DB Error!');
       console.log('Db Connected')
 
-      db.sequelize.sync(
-        ).then(() => { 
+    //   db.sequelize.sync(
+    //     ).then(() => { 
         // initial();
         return crun();
     
-    })
-    .catch(err => {
-        console.log(err)
-    });
+    // })
+    // .catch(err => {
+    //     console.log(err)
+    // });
     // console.log(connection)
   });
 
 
   setInterval( async () => {
+      console.log('Get Messages')
       if(port){
 
     let messages = await MessageModel.getIncompleteMessage();
@@ -72,6 +73,7 @@ dbs.getConnection(function(err, connection) {
         let { id, Mobtels } = a;
         let ind = Mobtels.find(ab => !ab.isSent);
         if(!ind){
+            console.log('Heellloow!')
             MessageModel.setMessageComplete(id);
         }
     })
@@ -79,7 +81,7 @@ dbs.getConnection(function(err, connection) {
         console.log('No Port Available')
     }
 
-}, 2000)
+}, 30000)
 
 }
 
