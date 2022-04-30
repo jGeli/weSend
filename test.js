@@ -2,6 +2,18 @@ const { spawn } = require("child_process");
 const db = require('./app/models');
 const dbs = require('./app/configs/smsdb.config');
 const MessageModel = require("./app/services/message.model");
+const serialportgsm = require('serialport-gsm');
+
+
+let port;
+let no = 0;
+
+
+
+serialportgsm.list((err,result) => {
+        port = result[no] && result[no].path ;
+});
+
 
 
 
@@ -11,8 +23,6 @@ function crun(){
 
     
     ls.stdout.on("data", (data) => {
-        // console.log(data)
-        console.log(data == 'stop')
     console.log(`stdout: ${data}`);
     });
     
@@ -55,9 +65,9 @@ dbs.getConnection(function(err, connection) {
 
 
   setInterval( async () => {
+      if(port){
+
     let messages = await MessageModel.getIncompleteMessage();
-    // console.log(messages.length)
-    console.log(messages)
     messages.forEach((a) => {
         let { id, Mobtels } = a;
         let ind = Mobtels.find(ab => !ab.isSent);
@@ -65,13 +75,17 @@ dbs.getConnection(function(err, connection) {
             MessageModel.setMessageComplete(id);
         }
     })
+    } else {
+        console.log('No Port Available')
+    }
+
 }, 2000)
 
 }
 
-// init();
+init();
 
-MessageModel.resetMessages()
+// MessageModel.resetMessages()
 
 
 

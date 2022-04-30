@@ -29,7 +29,9 @@ const GsmModem = serialportgsm.Modem();
 
 serialportgsm.list((err,result) => {
         port = result[no].path;
-       GsmModem.open(result[no].path, options)
+        if(port){
+            GsmModem.open(result[no].path, options)
+        }
 });
 
 function stopDev(){
