@@ -120,25 +120,21 @@ class MessageModel{
 
     static async setRecipientSent(id, port){
         // let rcpt = await 
+        try {
+            console.log(id)
+            console.log(port)
         let rcpt = await Recipient.findByPk(id);
+        console.log(rcpt.messageId)
         if(!rcpt) return console.log('Cant Find Recipient')
         let Msg = await Messages.findByPk(rcpt.messageId);
-                   
-
-        Recipient.update({isSent: true, path: port},  { where: { id: id }, 
-        })
-        .then(doc => {
-            let totalSent = Msg.totalSent + 1;
-            Messages.update({ totalSent }, {where: { id: Msg.id }});
-            return doc
-        })
-        .catch(err => {
-            console.log(err)
-            return null
-        })
-        ;
-        // console.log('Recipient Sent!')
-        return recipient
+        let totalSent = Msg.totalSent + 1;
+        console.log(totalSent)
+        await Recipient.update({isSent: true, path: port},  { where: { id: id }});
+        await Messages.update({ totalSent: totalSent }, {where: { id: rcpt.messageId }});
+    }catch(err){
+        console.log(err)
+    }
+ 
     }
 
     static async getRecipient(){

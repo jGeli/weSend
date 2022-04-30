@@ -73,6 +73,8 @@ class GsmService{
 
     static async processSms(){
                   //Get Message
+    try {
+
         if(!port) {
             stopDev()
             return console.log('No Device!')
@@ -81,10 +83,6 @@ class GsmService{
 
        let recipient = await MessageModel.getUnprocessRecipient();
        let { id, Mobtel, Message: { content, isFlash } } = recipient
-       console.log()
-       console.log(!format_number(Mobtel))
-       console.log(port)
-       console.log(recipient && port)
    
        if(recipient && port) {
         if(!format_number(Mobtel)) {
@@ -98,23 +96,28 @@ class GsmService{
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
                 console.log(`Output --> ${JSON.stringify(result)}`)
                 if(result && result.status == 'success' && result.data.recipient){
+                  MessageModel.setRecipientSent(id, port)
+                   .then(() => {
                     console.log('sent Naa!')
-                //   MessageModel.setRecipientSent(id, port)
-                //    .then(() => {
-                //     stopDev();
-                //    })
-                //    .catch(err => {
-                //        console.log(err)
-                //    })
+                    stopDev();
+                   })
+                   .catch(err => {
+                       console.log(err)
+                    // stopDev();
+                   })
                     // GsmModem.close(() => process.exit);
                     // console.log('sending')
-                    stopDev();
                  }
              });
             } else {
                 console.log('No Recipient!')
                 stopDev();
             }
+
+    } catch(err){
+        console.log(err)
+    }
+
     }
 
 
