@@ -16,7 +16,7 @@
   "production": {
     "username": "jim-user",
     "password": "Password@420230",
-    "database": "wesenddev",
+    "database": "allindbprod",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }

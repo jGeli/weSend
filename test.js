@@ -29,10 +29,6 @@ function crun(){
     });
 }
 
-console.log('wewew')
-
-// console.log(crun());
-
 
 function init(){
 
