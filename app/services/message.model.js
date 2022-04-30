@@ -75,6 +75,9 @@ class MessageModel{
         // limit: 1,
         include: [  { model: Messages,  as: 'Message', required: false}],
         });
+
+        console.log(message)
+
         return message
     }
 
@@ -91,12 +94,10 @@ class MessageModel{
                 isCompleted: false
             },
             // attributes: ['id', [sequelize.literal('(SELECT COUNT(*) FROM recipients WHERE recipients.isSent = false AND recipients.messageId = id)'), 'count']],
-            include: [
-                {
+            include: [{
                 model: Recipient,
                 as: "Mobtels"
-            }
-                ],
+                }],
         });
 
         return message

@@ -55,7 +55,7 @@ dbs.getConnection(function(err, connection) {
   setInterval( async () => {
     let messages = await MessageModel.getIncompleteMessage();
     // console.log(messages.length)
-    // console.log(messages)
+    console.log(messages)
     messages.forEach((a) => {
         let { id, Mobtels } = a;
         let ind = Mobtels.find(ab => !ab.isSent);

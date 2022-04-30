@@ -69,7 +69,8 @@ class GsmService{
     static async processSms(){
                   //Get Message
        let recipient = await MessageModel.getUnprocessRecipient();
-    //    console.log(recipient)
+       console.log('Recipientsss!')
+       console.log(recipient)
        if(recipient) {
 
             console.log(recipient)
@@ -118,7 +119,7 @@ class GsmService{
 
 setTimeout(() => {
 GsmService.processSms();
-}, 2000);
+}, 3000);
 
 
 
