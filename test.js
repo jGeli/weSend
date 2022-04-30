@@ -28,7 +28,7 @@ function crun(){
     
     ls.stderr.on("data", (data) => {
     console.error(`stderr: ${data}`);
-    crun();
+    // crun();
     });
     
     ls.on("close", (code) => {
@@ -45,7 +45,7 @@ function crun(){
 function init(){
 
 
-dbs.getConnection(function(err, connection) {
+return dbs.getConnection(function(err, connection) {
     console.log('connecting')
     console.log(err)
 
