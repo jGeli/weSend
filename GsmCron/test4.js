@@ -76,7 +76,7 @@ dbs.getConnection(function(err, connection) {
         } else {
             console.log('No Port Available')
         }
-}, 10000)
+}, 30000)
 
 }
 
