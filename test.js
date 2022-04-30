@@ -46,8 +46,8 @@ function init(){
 
 
 dbs.getConnection(function(err, connection) {
-    // console.log('connecting')
-    // console.log(err)
+    console.log('connecting')
+    console.log(err)
 
       if(err) return console.log('DB Error!');
       console.log('Db Connected')
