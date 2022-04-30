@@ -1,37 +1,79 @@
-// const FsService = require('./app/services/fsServices');
-// const PortServices = require('./app/services/portServices');
-
-// let files = FsService.checkOrCreatePath('resource');
-
-// let path = FsService.writeJsonFile('resource', {"8": 8, "9": 9});
-    // let rs = FsService.readJsonFile(files[0]);
-    // let wrt = FsService.updateJsonFile(files[0], rs);
+const { spawn } = require("child_process");
+const db = require('./app/models');
+const dbs = require('./app/configs/smsdb.config');
+const MessageModel = require("./app/services/message.model");
 
 
-//    let dl = FsService.deleteJsonFile(files[0])
-    // console.log(dl)
+
+function crun(){
+
+    const ls = spawn("node", ["gsmCron.js"]);
+
+    ls.stdout.on("data", (data) => {
+        // console.log(data)
+        console.log(data == 'stop')
+    console.log(`stdout: ${data}`);
+    });
+    
+    ls.stderr.on("data", (data) => {
+    console.error(`stderr: ${data}`);
+    });
+    
+    ls.on("close", (code) => {
+    console.log(`child process exited with code ${code}`);
+    crun();
+    // setTimeout(() => {
+    //     console.log('Repeating!!')
+    //     crun()
+    // }, 1000)
+    });
+}
+
+console.log('wewew')
+
+// console.log(crun());
 
 
-// let sms = SmsService.getDBSms();
-// console.log(sms)
-
-const CronSend = require('./app/services/cronsend');
+function init(){
 
 
-//Get Ports
-// let gsmPorts = PortServices.getGsmPorts();
+dbs.getConnection(function(err, connection) {
+    // console.log('connecting')
+    // console.log(err)
 
-// console.log(gsmPorts);
+      if(err) return console.log('DB Error!');
+      console.log('Db Connected')
+      db.sequelize.sync(
+        ).then(() => { 
+        // initial();
+    return crun();
+    
+    })
+    .catch(err => {
+        console.log(err)
+    });
+    // console.log(connection)
+  });
 
-// setInterval(() => {
-    // console.log('Settted')
 
-//     console.log(hm);
-// let status = SmsProcess.status();
-// console.log(status)
-// },5000);
+  setInterval( async () => {
+    let messages = await MessageModel.getIncompleteMessage();
+    // console.log(messages.length)
+    // console.log(messages)
+    messages.forEach((a) => {
+        let { id, Mobtels } = a;
+        let ind = Mobtels.find(ab => !ab.isSent);
+        if(!ind){
+            MessageModel.setMessageComplete(id);
+        }
+    })
+}, 2000)
 
+}
 
+init();
+
+// MessageModel.resetMessages()
 
 
 

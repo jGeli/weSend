@@ -9,6 +9,9 @@ module.exports = (sequelize, Sequelize) => {
       description: {
         type: Sequelize.STRING
       },
+      path: {
+        type: Sequelize.STRING
+      },
       sentAt: {
             type: Sequelize.DATE,
             defaultValue: null

@@ -35,7 +35,7 @@ db.messages.hasMany(db.recipients, { as: 'Mobtels', foreignKey: 'messageId',
 constraints: false
 });
 
-db.recipients.belongsTo(db.messages, { as: 'Mobtels', foreignKey: 'messageId', sourceKey: 'messageId',
+db.recipients.belongsTo(db.messages, { as: 'Message', foreignKey: 'messageId', sourceKey: 'messageId',
 constraints: false
 });
 

@@ -1,8 +1,8 @@
 const serialportgsm = require('serialport-gsm');
 // const dvConfig = require('../config/device.config');
 
-const CronSend = require('./cronsend');
-const FsServices = require('./fsServices');
+// const CronSend = require('./cronsend');
+// const FsServices = require('./fsServices');
 
 // let GsmModem = new serialportgsm.Modem()
 let options = {
@@ -151,8 +151,8 @@ module.exports = (GsmModem) => {
     GsmModem.on('close', data => {
       //whole message data
       // console.log(data.modem);
+      // FsServices.removeDevice(data.modem);
       console.log(`Event Close: ` + JSON.stringify(data));
-      FsServices.removeDevice(data.modem);
     });
   
     GsmModem.on('error', data => {

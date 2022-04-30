@@ -499,8 +499,6 @@ const intPorts = async (arrList) => {
     let dvs = await MessageModel.getDevices();
     gsmPorts = dvs;
     indx = 0;
-    console.log('wewew')
-    console.log(gsmPorts)
     dvs.length !== 0 && intPorts(gsmPorts);
   });
 }

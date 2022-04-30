@@ -1,7 +1,7 @@
-const path = require('path');
 const db = require("../models");
 const smsDb = require('../configs/smsdb.config');
 const FsServices = require('./fsServices');
+const { recipients } = require("../models");
 // const SmsProcess = require('./smsProcess');
 const Messages = db.messages;
 const Devices = db.device;
@@ -9,6 +9,7 @@ const Recipient = db.recipients;
 
 
 const Op = db.Sequelize.Op;
+const sequelize = db.Sequelize;
 // smsDb.getConnection(function(err, connection) {
 //     console.log(err)
 //       if(err) return console.log('DB Error!');
@@ -64,7 +65,15 @@ class MessageModel{
             [Op.or]: [{ [Op.and]: [{ isCompleted: false }, {isProcessing: false }, {isDeleted: false}]}, { [Op.and]: [{isProcessing: true}, {description: com }, {isCompleted: false }, {isDeleted: false}] }] 
         }, 
         // limit: 1,
-        include: [  { model: Recipient,  as: 'Mobtels', where: { isSent: false }, limit: 100, required: false}],
+        include: [  { model: Recipient,  as: 'Mobtels', where: { isSent: false }, limit: 50, required: false}],
+        });
+        return message
+    }
+
+    static async getUnprocessRecipient(){
+        let message = await Recipient.findOne({ where: { isSent: false  }, 
+        // limit: 1,
+        include: [  { model: Messages,  as: 'Message', required: false}],
         });
         return message
     }
@@ -73,6 +82,23 @@ class MessageModel{
         let message = await Messages.update({isProcessing: true, description: com},  { where: { id: id }, 
         });
         console.log('Message updated!')
+        return message
+    }
+
+    static async getIncompleteMessage(){
+     let message = await Messages.findAll({
+            where: {
+                isCompleted: false
+            },
+            // attributes: ['id', [sequelize.literal('(SELECT COUNT(*) FROM recipients WHERE recipients.isSent = false AND recipients.messageId = id)'), 'count']],
+            include: [
+                {
+                model: Recipient,
+                as: "Mobtels"
+            }
+                ],
+        });
+
         return message
     }
 
@@ -89,14 +115,14 @@ class MessageModel{
         return message
     }
 
-    static async setRecipientSent(id){
+    static async setRecipientSent(id, port){
         // let rcpt = await 
         let rcpt = await Recipient.findByPk(id);
         if(!rcpt) return console.log('Cant Find Recipient')
         let Msg = await Messages.findByPk(rcpt.messageId);
                    
 
-        let recipient = await Recipient.update({isSent: true},  { where: { id: id }, 
+        let recipient = await Recipient.update({isSent: true, path: port},  { where: { id: id }, 
         })
         .then( async doc => {
             let totalSent = Msg.totalSent + 1;
@@ -208,6 +234,13 @@ class MessageModel{
     static async stopPorts(){
         let devices = await Devices.destroy({where: {}});
     return devices;
+}
+
+
+static async resetMessages(){
+    Recipient.update({ isSent: false, path: null }, { where: {} });
+    Messages.update({isCompleted: false, isProcessing: false}, { where: {}})
+return;
 }
 
 
