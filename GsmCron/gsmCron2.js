@@ -24,7 +24,9 @@ let port;
 let no = 2;
 const GsmModem = serialportgsm.Modem();
 
+
 serialportgsm.list((err,result) => {
+        
     port = result[no] && result[no].path ;
     if(port){
     GsmModem.open(port, options)
@@ -59,15 +61,18 @@ try {
 
         GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
             let timeout = setTimeout(() => {
+                    GsmModem.getOwnNumber(({data}) => {
+                        console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
                        process.exit(230) 
-            }, 90000);
+                    });
+            }, 60000);
 
             if(result && result.status == 'success' && result.data.recipient){
               MessageModel.setRecipientSent(id, port)
                .then(() => {
                    console.log('Sennnt!')
-                stopDev();
                 clearTimeout(timeout)
+                stopDev();
             //    return
                })
                .catch(err => {

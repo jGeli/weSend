@@ -65,7 +65,7 @@ try {
                         console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
                        process.exit(230) 
                     });
-            }, 10000);
+            }, 60000);
 
             if(result && result.status == 'success' && result.data.recipient){
               MessageModel.setRecipientSent(id, port)
