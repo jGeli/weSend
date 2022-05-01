@@ -31,9 +31,14 @@ function crun(){
           console.log(`child process exited with code ${code}`);
           if(code == 230){
             console.log("Tunaay  na errror")
-            return process.exit()
-          }
     
+            return setTimeout(() => {
+              console.log('Trigger Error Restart!')
+              crun();
+            }, 60000)
+          } else {
+            crun();
+          }
             crun();
         });
     }

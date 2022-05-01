@@ -115,21 +115,27 @@ class MessageModel{
         return message
     }
 
+    static async checkDuplicateSent(id, Mobtel, messageId){
+
+        let message = await Recipient.findOne({ where: {[Op.and]: [{Mobtel: Mobtel}, {messageId: messageId}, {isDeleted: false},{isSent: true}, { id: { [Op.ne]: id  }}]}}); 
+        return message;
+
+    }
+
     static async setRecipientSent(id, port){
         // let rcpt = await 
         try {
-            console.log(id)
-            console.log(port)
+      
         let rcpt = await Recipient.findByPk(id);
-        console.log(rcpt.messageId)
         if(!rcpt) return console.log('Cant Find Recipient')
         let Msg = await Messages.findByPk(rcpt.messageId);
         let totalSent = Msg.totalSent + 1;
-        console.log(totalSent)
         await Recipient.update({isSent: true, path: port},  { where: { id: id }});
         await Messages.update({ totalSent: totalSent }, {where: { id: rcpt.messageId }});
+        return true
     }catch(err){
         console.log(err)
+        return false
     }
  
     }

@@ -24,74 +24,93 @@ let port;
 let no = 2;
 const GsmModem = serialportgsm.Modem();
 
-
 serialportgsm.list((err,result) => {
-        
     port = result[no] && result[no].path ;
     if(port){
     GsmModem.open(port, options)
     }
 });
 
+
 function stopDev(){
-if(port){
-    process.exit()
-} else {
-   return process.exit();
-}
+        process.exit()
 }
 
 
 class GsmService{
-static async processSms(){
-try {
+    static async processSms(){
+    try {
 
-   let recipient = await MessageModel.getUnprocessRecipient();
-   if(!recipient) {
-    console.log('No Recipient!')
-    return stopDev();
-   }
-   let { id, Mobtel, Message: { content, isFlash } } = recipient
-
-   if(recipient && port) {
-    if(!format_number(Mobtel)) {
-        await MessageModel.setRecipientSent(id, port)
-       return GsmModem.close(() => process.exit);
-    }
-
-        GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
-            let timeout = setTimeout(() => {
-                    GsmModem.getOwnNumber(({data}) => {
-                        console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
-                       process.exit(230) 
-                    });
-            }, 60000);
-
-            if(result && result.status == 'success' && result.data.recipient){
-              MessageModel.setRecipientSent(id, port)
-               .then(() => {
-                   console.log('Sennnt!')
-                clearTimeout(timeout)
-                stopDev();
-            //    return
-               })
-               .catch(err => {
-                   console.log(err)
-                   console.log(err)
-                   return stopDev()
-               })
-             }
-         });
-        } else {
-            console.log('No Recipient!')
-            stopDev();
+       let recipient = await MessageModel.getUnprocessRecipient();
+       if(!recipient) {
+        console.log('No Recipient!')
+        return stopDev();
+       }
+       let { id, Mobtel, Message: { id: messageId, content, isFlash } } = recipient
+       let res = await MessageModel.checkDuplicateSent(id, Mobtel, messageId);
+       if(res){
+        console.log(`Duplicate Entry ${id} -- ${res.id}`)
+      return MessageModel.setRecipientSent(id, port)
+        .then((a) => {
+            // console.log(a)
+            return stopDev();
+        }).catch(err => {
+            console.log(err)
+            return stopDev();
+        })
         }
-} catch(err){
-    console.log(err)
+
+       if(recipient && port && !res) {
+        if(!format_number(Mobtel)) {
+            await MessageModel.setRecipientSent(id, port)
+           return GsmModem.close(() => process.exit());
+        }
+
+
+        GsmModem.deleteAllSimMessages(callback => {
+            console.log('Messages Deleted!')
+        })
+
+            GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
+                let timeout = setTimeout(() => {
+                        GsmModem.getOwnNumber((mob) => {
+                            
+                            let data = mob ? mob.data : {number: 'Errror'}
+                            console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
+                           process.exit(230) 
+                        });
+                }, 60000);
+
+                if(result && result.status == 'success' && result.data.recipient){
+                  MessageModel.setRecipientSent(id, port)
+                   .then(() => {
+                       console.log('Sennnt!')
+                    clearTimeout(timeout)
+                    stopDev();
+                //    return
+                   })
+                   .catch(err => {
+                       console.log(err)
+                       console.log(err)
+                       return stopDev()
+                   })
+                 }
+             });
+            } else {
+                console.log('No Recipient!')
+                stopDev();
+            }
+    } catch(err){
+        console.log(err)
+    }
+    }
 }
-}
-}
+
 
 setTimeout(() => {
-GsmService.processSms();
-}, 3000);
+    GsmService.processSms();
+}, 3000)
+
+
+
+module.exports = GsmService;
