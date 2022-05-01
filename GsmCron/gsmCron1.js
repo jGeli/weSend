@@ -35,8 +35,7 @@ serialportgsm.list((err,result) => {
 });
 
 function stopDev(){
-    // console.log('stop')
-    // console.log(GsmModem.close())
+  
     if(port){
         GsmModem.close();
     } else {

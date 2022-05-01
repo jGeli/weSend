@@ -28,7 +28,7 @@ const GsmModem = serialportgsm.Modem();
 
 serialportgsm.list((err,result) => {
         
-        port = result[no] && result[no].path ;
+        port = result[no] && result[no].path;
         if(port){
         GsmModem.open(port, options)
         }
@@ -72,28 +72,51 @@ class GsmService{
 
     static async processSms(){
                   //Get Message
-        if(!port) {
-            stopDev()
-            return console.log('No Device!')
-        }
+    try {
+
+        // if(!port) {
+        //     stopDev()
+        //     return console.log('No Device!')
+        // }
 
 
        let recipient = await MessageModel.getUnprocessRecipient();
+       let { id, Mobtel, Message: { content, isFlash } } = recipient
+   
        if(recipient && port) {
+        if(!format_number(Mobtel)) {
+            await MessageModel.setRecipientSent(id, port)
+           return GsmModem.close(() => process.exit);
+        }
 
-        let { id, Mobtel, Message: { content, isFlash } } = recipient
-       
-            GsmModem.sendSMS(format_number(Mobtel), content, isFlash, async (result) => {
+           console.log('gagagaga')
+        console.log(content)
+        console.log(!format_number(Mobtel))
+            GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
+                console.log(`Output --> ${JSON.stringify(result)}`)
                 if(result && result.status == 'success' && result.data.recipient){
-                   await MessageModel.setRecipientSent(id, port)
-                    GsmModem.close(() => process.exit);
-                    console.log('sending')
+                  MessageModel.setRecipientSent(id, port)
+                   .then(() => {
+                    console.log('sent Naa!')
+                    stopDev();
+                   })
+                   .catch(err => {
+                       console.log(err)
+                    // stopDev();
+                   })
+                    // GsmModem.close(() => process.exit);
+                    // console.log('sending')
                  }
              });
             } else {
                 console.log('No Recipient!')
                 stopDev();
             }
+
+    } catch(err){
+        console.log(err)
+    }
+
     }
 
 
@@ -123,9 +146,7 @@ class GsmService{
 
 setTimeout(() => {
 GsmService.processSms();
-}, 3000);
-
-
+}, 5000);
 
 
 
