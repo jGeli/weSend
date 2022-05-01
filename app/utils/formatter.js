@@ -46,10 +46,6 @@ exports.format_number = (mobnum) => {
             return {
                 id, content, isFlash, isCompleted, isDeleted, createdAt, recipients: arrs, totalSent
             }
-    
-            // let mobtels = MessageRecipient ?
-            // MessageRecipient 
-            // return data
         },
     
         recipientForm: (data) => {

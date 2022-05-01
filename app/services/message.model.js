@@ -64,21 +64,15 @@ class MessageModel{
         let message = await Messages.findOne({ where: { 
             [Op.or]: [{ [Op.and]: [{ isCompleted: false }, {isProcessing: false }, {isDeleted: false}]}, { [Op.and]: [{isProcessing: true}, {description: com }, {isCompleted: false }, {isDeleted: false}] }] 
         }, 
-        // limit: 1,
         include: [  { model: Recipient,  as: 'Mobtels', where: { isSent: false }, limit: 50, required: false}],
         });
         return message
     }
 
     static async getUnprocessRecipient(){
-        console.log('Get Uprocess Recipient')
-        let message = await Recipient.findOne({ where: { isSent: false  }, 
-        // limit: 1,
+        let message = await Recipient.findOne({ where: {[Op.and]: [{isDeleted: false},{isSent: false}]   }, 
         include: [  { model: Messages,  as: 'Message', required: false}],
         });
-
-        // console.log(message)
-
         return message
     }
 
@@ -91,8 +85,11 @@ class MessageModel{
 
     static async getIncompleteMessage(){
      let message = await Messages.findAll({
-            where: {
+            where: { [Op.and]: [{
                 isCompleted: false
+            }, {
+                isDeleted: false
+            }]
             },
             // attributes: ['id', [sequelize.literal('(SELECT COUNT(*) FROM recipients WHERE recipients.isSent = false AND recipients.messageId = id)'), 'count']],
             include: [{

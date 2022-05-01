@@ -27,44 +27,31 @@ function crun(){
         });
         
         ls.on("close", (code) => {
-        console.log(`child process exited with code ${code}`);
-        crun();
+    
+          console.log(`child process exited with code ${code}`);
+          if(code == 230){
+            console.log("Tunaay  na errror")
+            return process.exit()
+          }
+    
+            crun();
         });
     }
     
-function init(){
+    function init(){
     return dbs.getConnection(function(err, connection) {
-
+    
           if(err) return console.log('DB Error!');
           console.log('Db Connected')
           crun();
-          setInterval( async () => {
-        if(port){
-          let messages = await MessageModel.getIncompleteMessage();
-          messages.forEach((a) => {
-              let { id, Mobtels } = a;
-              let ind = Mobtels.find(ab => !ab.isSent);
-              if(!ind){
-                  MessageModel.setMessageComplete(id);
-              }
-          })
-          } else {
-              console.log('No Port Available')
-          }
-      }, 30000)
       });
+    
+    
+    
+    
     }
     
     init();
     
-
-// MessageModel.resetMessages()
-
-
-
-
-// device1.checkDeviceStatus();
-
-// SmsProcess.start();
-// console.log(obj.length);
-// console.log(objs.length);
+    // MessageModel.resetMessages()
+    

@@ -8,20 +8,12 @@ const serialportgsm = require('serialport-gsm');
 let port;
 let no = 0;
 
-
-
 serialportgsm.list((err,result) => {
         port = result[no] && result[no].path ;
 });
 
-
-
-
 function crun(){
-
     const ls = spawn("node", ["gsmCron.js"]);
-
-    
     ls.stdout.on("data", (data) => {
     console.log(`stdout: ${data}`);
     });
@@ -32,55 +24,23 @@ function crun(){
     });
     
     ls.on("close", (code) => {
-    console.log(`child process exited with code ${code}`);
-    crun();
-    // setTimeout(() => {
-    //     console.log('Repeating!!')
-    //     crun()
-    // }, 1000)
+
+      console.log(`child process exited with code ${code}`);
+      if(code == 230){
+        console.log("Tunaay  na errror")
+        return process.exit()
+      }
+
+        crun();
     });
 }
 
-
 function init(){
-
-
 return dbs.getConnection(function(err, connection) {
-    console.log('connecting')
-    console.log(err)
 
       if(err) return console.log('DB Error!');
       console.log('Db Connected')
       crun();
-      setInterval( async () => {
-        console.log('Get Messages')
-        if(port){
-  
-      let messages = await MessageModel.getIncompleteMessage();
-      messages.forEach((a) => {
-          let { id, Mobtels } = a;
-          let ind = Mobtels.find(ab => !ab.isSent);
-          if(!ind){
-              console.log('Heellloow!')
-              MessageModel.setMessageComplete(id);
-          }
-      })
-      } else {
-          console.log('No Port Available')
-      }
-  
-  }, 30000)
-
-    //   db.sequelize.sync(
-    //     ).then(() => { 
-        // initial();
-        // return 
-    
-    // })
-    // .catch(err => {
-    //     console.log(err)
-    // });
-    // console.log(connection)
   });
 
 
@@ -91,12 +51,3 @@ return dbs.getConnection(function(err, connection) {
 init();
 
 // MessageModel.resetMessages()
-
-
-
-
-// device1.checkDeviceStatus();
-
-// SmsProcess.start();
-// console.log(obj.length);
-// console.log(objs.length);
