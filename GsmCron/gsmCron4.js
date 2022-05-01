@@ -18,8 +18,7 @@ let options = {
     pin: '',
     customInitCommand: 'AT^CURC=0',
     cnmiCommand:'AT+CNMI=2,1,0,2,1',
-  
-    logger: console
+    // logger: console
   }
 
 let port;
@@ -92,4 +91,4 @@ try {
 
 setTimeout(() => {
 GsmService.processSms();
-}, 5000);
+}, 3000);

@@ -17,8 +17,7 @@ let options = {
     pin: '',
     customInitCommand: 'AT^CURC=0',
     cnmiCommand:'AT+CNMI=2,1,0,2,1',
-  
-    logger: console
+    // logger: console
   }
 
 let port;
@@ -27,6 +26,7 @@ const GsmModem = serialportgsm.Modem();
 
 
 serialportgsm.list((err,result) => {
+        
     port = result[no] && result[no].path ;
     if(port){
     GsmModem.open(port, options)
@@ -61,15 +61,18 @@ try {
 
         GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
             let timeout = setTimeout(() => {
+                    GsmModem.getOwnNumber(({data}) => {
+                        console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
                        process.exit(230) 
-            }, 90000);
+                    });
+            }, 10000);
 
             if(result && result.status == 'success' && result.data.recipient){
               MessageModel.setRecipientSent(id, port)
                .then(() => {
                    console.log('Sennnt!')
-                stopDev();
                 clearTimeout(timeout)
+                stopDev();
             //    return
                })
                .catch(err => {
@@ -91,4 +94,4 @@ try {
 
 setTimeout(() => {
 GsmService.processSms();
-}, 5000);
+}, 3000);

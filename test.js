@@ -43,9 +43,6 @@ return dbs.getConnection(function(err, connection) {
       crun();
   });
 
-
-
-
 }
 
 init();

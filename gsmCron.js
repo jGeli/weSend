@@ -63,15 +63,18 @@ class GsmService{
 
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
                 let timeout = setTimeout(() => {
+                        GsmModem.getOwnNumber(({data}) => {
+                            console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
                            process.exit(230) 
-                }, 90000);
+                        });
+                }, 10000);
 
                 if(result && result.status == 'success' && result.data.recipient){
                   MessageModel.setRecipientSent(id, port)
                    .then(() => {
                        console.log('Sennnt!')
-                    stopDev();
                     clearTimeout(timeout)
+                    stopDev();
                 //    return
                    })
                    .catch(err => {
@@ -93,4 +96,4 @@ class GsmService{
 
 setTimeout(() => {
 GsmService.processSms();
-}, 5000);
+}, 3000);

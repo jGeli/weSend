@@ -17,14 +17,12 @@ let options = {
     pin: '',
     customInitCommand: 'AT^CURC=0',
     cnmiCommand:'AT+CNMI=2,1,0,2,1',
-  
-    logger: console
+    // logger: console
   }
 
 let port;
 let no = 2;
 const GsmModem = serialportgsm.Modem();
-
 
 serialportgsm.list((err,result) => {
     port = result[no] && result[no].path ;
@@ -91,4 +89,4 @@ try {
 
 setTimeout(() => {
 GsmService.processSms();
-}, 5000);
+}, 3000);

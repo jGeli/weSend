@@ -46,24 +46,6 @@ function crun(){
           console.log('Db Connected')
           crun();
       });
-    
-      setInterval( async () => {
-        if(port){
-    
-            let messages = await MessageModel.getIncompleteMessage();
-            messages.forEach((a) => {
-                let { id, Mobtels } = a;
-                let ind = Mobtels.find(ab => !ab.isSent);
-                if(!ind){
-                    MessageModel.setMessageComplete(id);
-                }
-            })
-            } else {
-                console.log('No Port Available')
-            }
-    }, 30000)
-    
-    
     }
     
     init();
