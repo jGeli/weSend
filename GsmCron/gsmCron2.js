@@ -63,7 +63,7 @@ class GsmService{
        if(recipient && port && !res) {
         if(!format_number(Mobtel)) {
             await MessageModel.setRecipientSent(id, port)
-           return GsmModem.close(() => process.exit());
+           return process.exit();
         }
 
 
