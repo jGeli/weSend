@@ -52,48 +52,47 @@ cors: "*"
 
 // cron1.start();
 
-require('./app/socket')(io);
 
-// io.on("connection", (socket) => {
-//   console.log('conntected')
-//   socket.on("connect", () => {
-//     console.log('client Conntected')
-//   })
+io.on("connection", (socket) => {
+  console.log('conntected')
+  socket.on("connect", () => {
+    console.log('client Conntected')
+  })
 
-//   socket.on("initDevice", (val) => {
-//     console.log('Initializing')
-//     // PortServices.initDevices(val);
-//    })
+  socket.on("initDevice", (val) => {
+    console.log('Initializing')
+    // PortServices.initDevices(val);
+   })
  
-//    socket.on("sendSms", (val) => {
-//      console.log(val)
-//      // console.log(data)
-//     //  handleSend(val);
-//      // console.log('client Conntected')
-//    })
+   socket.on("sendSms", (val) => {
+     console.log(val)
+     // console.log(data)
+    //  handleSend(val);
+     // console.log('client Conntected')
+   })
  
-//    socket.on("getPorts", (data) => {
-//        // console.log('bb', data)
+   socket.on("getPorts", (data) => {
+       // console.log('bb', data)
  
-//     //  let gsmPorts = PortServices.getGsmPorts();
+    //  let gsmPorts = PortServices.getGsmPorts();
  
-//      console.log('Hello World!')
-//     //  socket.emit('sendPorts', gsmPorts)
-//      // console.log(data)
-//    })
+     console.log('Hello World!')
+    //  socket.emit('sendPorts', gsmPorts)
+     // console.log(data)
+   })
  
 
-//   socket.on("disconnect", () => {
-//     console.log("Client disconnected");
-//   });
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
 
-// });
+});
 
-// io.on('init', val => {
-//   console.log(val)
-// });
+io.on('init', val => {
+  console.log(val)
+});
 
-// socket.on('init', () => {
-//   console.log('wawa')
-// })
+socket.on('init', () => {
+  console.log('wawa')
+})
 

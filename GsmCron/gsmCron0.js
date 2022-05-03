@@ -67,9 +67,9 @@ class GsmService{
         }
 
 
-        GsmModem.deleteAllSimMessages(callback => {
-            console.log('Messages Deleted!')
-        })
+        // GsmModem.deleteAllSimMessages(callback => {
+        //     console.log('Messages Deleted!')
+        // })
 
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
                 let timeout = setTimeout(() => {
