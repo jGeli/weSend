@@ -21,7 +21,7 @@ let options = {
   }
 
 let port;
-let no = 0;
+let no = 2;
 const GsmModem = serialportgsm.Modem();
 
 serialportgsm.list((err,result) => {

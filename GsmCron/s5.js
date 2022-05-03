@@ -6,7 +6,7 @@ const serialportgsm = require('serialport-gsm');
 
 
 let port;
-let no = 0;
+let no = 5;
 
 
 
@@ -17,7 +17,7 @@ serialportgsm.list((err,result) => {
 
 function crun(){
 
-    const ls = spawn("node", ["gsmCron0.js"]);
+    const ls = spawn("node", ["d5.js"]);
     ls.stdout.on("data", (data) => {
         console.log(`stdout: ${data}`);
         });

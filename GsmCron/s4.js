@@ -6,7 +6,7 @@ const serialportgsm = require('serialport-gsm');
 
 
 let port;
-let no = 1;
+let no = 4;
 
 
 
@@ -17,7 +17,7 @@ serialportgsm.list((err,result) => {
 
 function crun(){
 
-    const ls = spawn("node", ["gsmCron1.js"]);
+    const ls = spawn("node", ["d4.js"]);
     ls.stdout.on("data", (data) => {
         console.log(`stdout: ${data}`);
         });
@@ -44,16 +44,12 @@ function crun(){
     }
     
     function init(){
-    return dbs.getConnection(function(err, connection) {
+    dbs.getConnection(function(err, connection) {
     
           if(err) return console.log('DB Error!');
           console.log('Db Connected')
           crun();
       });
-    
-    
-    
-    
     }
     
     init();
