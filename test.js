@@ -39,15 +39,12 @@ function crun(){
 }
 
 function init(){
+
 return dbs.getConnection(function(err, connection) {
-  console.log(err)
       if(err) return console.log('DB Error!');
       console.log('Db Connected')
       crun();
   });
-
 }
 
 init();
-
-// MessageModel.resetMessages()

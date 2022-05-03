@@ -4,10 +4,10 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     return Promise.all([
       queryInterface.sequelize.query(`
-        CREATE TABLE IF NOT EXISTS simpaks (
+        CREATE TABLE IF NOT EXISTS event_sockets (
         id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
         description TEXT NULL DEFAULT NULL,
-        mobtel VARCHAR(10) NULL DEFAULT NULL,
+        content TEXT NULL DEFAULT NULL,
         sentCount INT NOT NULL DEFAULT 0,
         errorCount INT NOT NULL DEFAULT 0,
         status VARCHAR(30) NULL DEFAULT 'ACTIVE',
@@ -19,7 +19,7 @@ module.exports = {
   async down (queryInterface, Sequelize) {
     return Promise.all([
       queryInterface.sequelize.query(`
-        DROP TABLE EXISTS simpaks;
+        DROP TABLE EXISTS event_sockets;
         `, { transaction: t })
     ])
   }
