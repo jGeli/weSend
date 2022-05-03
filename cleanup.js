@@ -1,10 +1,8 @@
 const MessageModel = require("./app/services/message.model");
 
-
 function init(){
 
-  setInterval( async () => {
-    console.log('wewewe')
+    setInterval( async () => {
         let messages = await MessageModel.getIncompleteMessage();
         messages.forEach((a) => {
             let { id, Mobtels } = a;

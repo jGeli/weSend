@@ -1,9 +1,8 @@
 const { spawn } = require("child_process");
 const db = require('./app/models');
 const dbs = require('./app/configs/smsdb.config');
-const MessageModel = require("./app/services/message.model");
+// const MessageModel = require("./app/services/message.model");
 const serialportgsm = require('serialport-gsm');
-
 
 let port;
 let no = 0;
