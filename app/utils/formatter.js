@@ -3,7 +3,7 @@ exports.format_number = (mobnum) => {
         let num = String(mobnum).trim().split('');
         let ind = num.indexOf('9');
         let resNum = String(mobnum).substring(ind);
-        if(String(resNum).length == 10) return `+63${resNum}`;
+        if(String(resNum).length == 10 && String(resNum)[0] == '9') return `+63${resNum}`;
         return false;
     }
 

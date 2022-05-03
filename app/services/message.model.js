@@ -236,15 +236,12 @@ class MessageModel{
     static async stopPorts(){
         let devices = await Devices.destroy({where: {}});
     return devices;
-}
+    }
 
-
-static async resetMessages(){
-    Recipient.update({ isSent: false, path: null }, { where: {} });
-    Messages.update({isCompleted: false, isProcessing: false}, { where: {}})
-return;
-}
-
+        static async stopPorts(){
+            let devices = await Devices.destroy({where: {}});
+        return devices;
+        }
 
 }
 
