@@ -6,7 +6,7 @@ const serialportgsm = require('serialport-gsm');
 
 
 let port;
-let no = 2;
+let no = 1;
 
 
 

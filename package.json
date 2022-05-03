@@ -27,7 +27,7 @@
     "nodemon": "^2.0.16",
     "sequelize": "^6.19.0",
     "serialport-gsm": "^3.4.2",
-    "socket.io": "^4.4.1"
+    "socket.io": "^4.5.0"
   },
   "devDependencies": {
     "sequelize-cli": "^6.4.1"
