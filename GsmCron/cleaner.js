@@ -1,4 +1,4 @@
-const MessageModel = require("./app/services/message.model");
+const MessageModel = require("../app/services/message.model");
 
 
 function init(){
