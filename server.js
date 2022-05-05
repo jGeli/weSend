@@ -88,11 +88,4 @@ io.on("connection", (socket) => {
 
 });
 
-// io.on('init', val => {
-//   console.log(val)
-// });
-
-// socket.on('init', () => {
-//   console.log('wawa')
-// })
 

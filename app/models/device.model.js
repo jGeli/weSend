@@ -5,7 +5,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       mobtel: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       path: {
         type: Sequelize.STRING

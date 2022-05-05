@@ -2,8 +2,7 @@ const dbs = require('./app/configs/smsdb.config');
 const serialportgsm = require('serialport-gsm');
 const MessageModel = require('./app/services/message.model');
 const DeviceModel = require('./app/model/device.model');
-const { format_number } = require('./app/utils/formatter');
-
+const SimpakModel = require('./app/model/simpak.model');
 
 var gsmModem = serialportgsm.Modem()
 let options = {
@@ -107,31 +106,12 @@ gsmModem.on('open', (result) => {
       }, phone.mode);
 
 
-
-
-
-
-
       gsmModem.getModemSerial((result, err) => {
         let { data } = result;
-        // console.log(data.modemSerial)
-        console.log('get Modem Derial')
              gsmModem.getOwnNumber((mob) => {
                let { number } = mob.data;
-                console.log(mob)
                  DeviceModel.initDevice({serial: data.modemSerial, path: modem, mobtel: number })
              });
-        // console.log(result)
-        // GsmModem.getOwnNumber((mob) => {
-                        
-        //   let data = mob ? mob.data : {number: 'Errror'}
-        //   DeviceModel.initDevice({
-        //     description
-        //   })
-      // });
-
-
-
         if (err) {
           console.log(`Error retrieving ModemSerial - ${err}`);
         }
@@ -156,10 +136,37 @@ gsmModem.on('open', (result) => {
 
             // Finally send an SMS
             // GsmService.processSms();
+            let timeout = setTimeout(() => {
+              gsmModem.getOwnNumber((mob) => {
+                  let data = mob ? mob.data : {number: 'Errror'}
+                  SimpakModel.addErrorSent(data.number);
+                  console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
+                 process.exit(230) 
+              });
+      }, 60000);
+
+
             const message = `Hello ${phone.name}, Try again....This message was sent`;
             gsmModem.sendSMS(phone.number, message, true, (result) => {
-              console.log(`Callback Send: Message ID: ${result.data.messageId},` +
-                  `${result.data.response} To: ${result.data.recipient} ${JSON.stringify(result)}`);
+              if(result && result.status == 'success' && result.data.recipient){
+                console.log('Sennnt!')
+                gsmModem.getOwnNumber((mob) => {
+                  let data = mob ? mob.data : {number: 'Errror'}
+
+                  SimpakModel.addSuccessSent(data.number)
+                  .then(() => {
+                   clearTimeout(timeout)
+                  return
+                  })
+                  .catch(err => {
+                      console.log(err)
+                      console.log(err)
+                      // return stopDev()
+                  })
+                
+              });
+              
+               }
             });
                 // processSms();
           });
@@ -204,7 +211,15 @@ gsmModem.on('open', (result) => {
 
   gsmModem.on('close', data => {
     //whole message data
-    console.log(`Event Close: ` + JSON.stringify(data));
+    console.log(data)
+    if(data){
+      DeviceModel.stopDevice(data.modem)
+    }
+    // gsmModem.getModemSerial((result, err) => {
+    //   let { data } = result;
+    //   
+    //   console.log(`Event Close: ` + JSON.stringify(data));
+    // });
   });
 
 });

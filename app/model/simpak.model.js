@@ -1,8 +1,5 @@
 const db = require("../models");
-const smsDb = require('../configs/smsdb.config');
-const Messages = db.messages;
-const Devices = db.device;
-const Recipient = db.recipients;
+const Simpak = db.simpak;
 
 
 const Op = db.Sequelize.Op;
@@ -15,11 +12,25 @@ const sequelize = db.Sequelize;
 //   });
 
 
-class EventSocketModel{
+class SimpakModel{
 
-    static async createEvent({content, isFlash, Mobtels, startAt}){
-            
+    static async addSuccessSent(mobtel){
+        let sim = await Simpak.findOne({where: { mobtel: mobtel }});
+        let total = sim.sentCount + 1;
+                sim.sentCount = total;
+                sim.status = 'Active';
+               await sim.save(); 
+        return sim;
+    }
+
+    static async addErrorSent(mobtel){
+        let sim = await Simpak.findOne({where: { mobtel: mobtel }});
+        let total = sim.errorCount + 1;
+                sim.errorCount = total;
+                sim.status = 'Error';
+               await sim.save(); 
+        return sim;
     }
 }
 
-module.exports = EventSocketModel;
+module.exports = SimpakModel;

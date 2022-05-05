@@ -3,30 +3,35 @@ const Devices = db.device;
 const Simpak = db.simpak;
 
 const Op = db.Sequelize.Op;
-const sequelize = db.Sequelize;
 
 
 
 class DeviceModel{
 
     static async initDevice({description, mobtel, serial, path}){
-        console.log(serial)
-           let device = await Devices.findOne({where: { serial: serial }})
-           .then(doc => {
-               console.log(doc)
-           })
-           .catch(err => {
-               console.log(err)
-           })
-           
-           ;
+            let sim = await Simpak.findOne({where: { mobtel: mobtel} })
+                        .then(async doc => {
+                            console.log(doc)
+                            if(!doc){
+                             return await Simpak.create({
+                                    mobtel: mobtel
+                                })
+                            } 
+                            return doc
+                        });
+
+
+            console.log(sim);
+           let device = await Devices.findOne({where: { serial: serial }});
+          
 
 
             if(device){
-                return await Devices.update({ description: description, mobtel: mobtel, serial: serial, path: path, status: 'Active'  }, { returning: true, where: { id: device.id } })
+                return await Devices.update({ description: description, mobtel: mobtel, serial: serial, path: path, status: 'Active', simpakId: sim.id  }, { returning: true, where: { id: device.id } })
                     .then(doc => {
-                        console.log(doc)
-                        return Devices.findByPk(device.id);
+                        sim.deviceId = device.id;
+                        sim.save();
+                        return device;
                     })
                     .catch(err => {
                         console.log(err)
@@ -37,8 +42,18 @@ class DeviceModel{
                     description: description, 
                     mobtel: mobtel, 
                     serial: serial, 
-                    path: path
-                })   
+                    path: path,
+                    simpakId: sim.id
+                })
+                .then(doc => {
+                    sim.deviceId = doc.id;
+                    sim.save();
+                    return doc;
+                }) 
+                .catch(err => {
+                    console.log(err)
+                    return err
+                })
             }
     }
 
@@ -70,10 +85,11 @@ class DeviceModel{
             
     }
 
-    static async stopDevice(id){
-        return await Devices.update({status: 'Inactive'}, { where: { id: id }, returning: true })
+    static async stopDevice(path){
+        return await Devices.update({status: 'Inactive'}, { where: { path: path }, returning: true })
         .then(async doc => {
-            return await Devices.findByPk(id);
+            console.log(doc)
+            return path;
         })
         .catch(err => {
             console.log(err)
