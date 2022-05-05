@@ -53,6 +53,11 @@ class MessageModel{
     }
 
     static async getMessage(){
+
+
+
+
+
         let message = await Messages.findOne({ where: { isCompleted: false }, 
             // limit: 1,
             include: [  { model: Recipient,  as: 'Mobtels', where: { isSent: false }, required: false}],
@@ -61,6 +66,12 @@ class MessageModel{
     }
 
     static async getUnprocessMessage(com){
+
+
+
+
+
+
         let message = await Messages.findOne({ where: { 
             [Op.or]: [{ [Op.and]: [{ isCompleted: false }, {isProcessing: false }, {isDeleted: false}]}, { [Op.and]: [{isProcessing: true}, {description: com }, {isCompleted: false }, {isDeleted: false}] }] 
         }, 
@@ -70,6 +81,23 @@ class MessageModel{
     }
 
     static async getUnprocessRecipient(){
+
+        let msg = await Messages.findOne({ where: { [Op.and]: [{ isDeleted: false }, { isCompleted: false }, { isProcessing: false }] },
+            include: [  { model: Recipient,  as: 'Mobtels', where: { isSent: false }, limit: 1, required: false,
+            include: [  { model: Messages,  as: 'Message', required: false}],
+        }],
+        });
+
+        if(!msg) return null;
+        let { Mobtels } = msg;
+        if(Mobtels && Mobtels.length == 0) {
+            await Messages.update({  isCompleted: true }, { where: { id: msg.id } })
+            return null;
+        }
+        
+        await Messages.update({ isProcessing: true}, { where: { id: msg.id } })
+        
+
         let message = await Recipient.findOne({ where: {[Op.and]: [{isDeleted: false},{isSent: false}]   }, 
         include: [  { model: Messages,  as: 'Message', required: false}],
         });
@@ -78,6 +106,13 @@ class MessageModel{
 
     static async setMessageProcessing(id, com){
         let message = await Messages.update({isProcessing: true, description: com},  { where: { id: id }, 
+        });
+        console.log('Message updated!')
+        return message
+    }
+
+    static async setMessagesUnprocessing(){
+        let message = await Messages.update({isProcessing: false},  { where: {  }
         });
         console.log('Message updated!')
         return message
@@ -131,7 +166,7 @@ class MessageModel{
         let Msg = await Messages.findByPk(rcpt.messageId);
         let totalSent = Msg.totalSent + 1;
         await Recipient.update({isSent: true, path: port},  { where: { id: id }});
-        await Messages.update({ totalSent: totalSent }, {where: { id: rcpt.messageId }});
+        await Messages.update({ totalSent: totalSent, isProcessing: false }, {where: { id: rcpt.messageId }});
         return true
     }catch(err){
         console.log(err)

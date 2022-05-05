@@ -22,9 +22,10 @@ const handleSmsReach = async () => {
 
 
 
-function init(){
+async function init(){
 
     setInterval( async () => {
+        await MessageModel.setMessagesUnprocessing();
         let messages = await MessageModel.getIncompleteMessage();
         messages.forEach((a) => {
             let { id, Mobtels } = a;
@@ -34,7 +35,7 @@ function init(){
             }
         })
             handleSmsReach()
-}, 30000)
+}, 60000)
 
 }
 
