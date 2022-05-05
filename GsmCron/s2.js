@@ -17,7 +17,7 @@ serialportgsm.list((err,result) => {
 
 function crun(){
 
-    const ls = spawn("node", ["gsmCron1.js"]);
+    const ls = spawn("node", ["d2.js"]);
     ls.stdout.on("data", (data) => {
         console.log(`stdout: ${data}`);
         });
@@ -44,16 +44,12 @@ function crun(){
     }
     
     function init(){
-    return dbs.getConnection(function(err, connection) {
+    dbs.getConnection(function(err, connection) {
     
           if(err) return console.log('DB Error!');
           console.log('Db Connected')
           crun();
       });
-    
-    
-    
-    
     }
     
     init();

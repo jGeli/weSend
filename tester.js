@@ -15,13 +15,13 @@ let options = {
   xany: false,
   autoDeleteOnReceive: true,
   enableConcatenation: true,
-  incomingCallIndication: true,
-  incomingSMSIndication: true,
+  incomingCallIndication: false,
+  incomingSMSIndication: false,
   pin: '',
   customInitCommand: 'AT^CURC=0',
-  cnmiCommand:'AT+CNMI=2,1,0,2,1',
+  // cnmiCommand:'AT+CNMI=2,1,0,2,1',
 
-//   logger: console
+  logger: console
 }
 
 
@@ -121,12 +121,12 @@ gsmModem.on('open', () => {
 
             // Finally send an SMS
             // GsmService.processSms();
-            // const message = `Hello ${phone.name}, Try again....This message was sent`;
-            // gsmModem.sendSMS(phone.number, message, false, (result) => {
-            //   console.log(`Callback Send: Message ID: ${result.data.messageId},` +
-            //       `${result.data.response} To: ${result.data.recipient} ${JSON.stringify(result)}`);
-            // });
-                processSms();
+            const message = `Hello ${phone.name}, Try again....This message was sent`;
+            gsmModem.sendSMS(phone.number, message, true, (result) => {
+              console.log(`Callback Send: Message ID: ${result.data.messageId},` +
+                  `${result.data.response} To: ${result.data.recipient} ${JSON.stringify(result)}`);
+            });
+                // processSms();
           });
 
         }
@@ -186,74 +186,6 @@ serialportgsm.list((err,result) => {
 });
 
 
-setTimeout(() => {
-  gsmModem.close(() => process.exit);
-}, 90000);
-
-function stopDev(){
-    process.exit()
-}
-
-async function processSms(){
-    try {
-
-       let recipient = await MessageModel.getUnprocessRecipient();
-       if(!recipient) {
-        console.log('No Recipient!')
-        return stopDev();
-       }
-       let { id, Mobtel, Message: { id: messageId, content, isFlash } } = recipient
-       let res = await MessageModel.checkDuplicateSent(id, Mobtel, messageId);
-       if(res){
-
-      return MessageModel.setRecipientSent(id, port)
-        .then((a) => {
-            // console.log(a)
-            return stopDev();
-        }).catch(err => {
-            console.log(err)
-            return stopDev();
-        })
-        }
-
-       if(recipient && port && !res) {
-        if(!format_number(Mobtel)) {
-            await MessageModel.setRecipientSent(id, port)
-            stopDev();
-        }
-
-
-        gsmModem.deleteAllSimMessages(callback => {
-            console.log('wewew')
-        })
-
-            gsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
-                let timeout = setTimeout(() => {
-                        gsmModem.getOwnNumber((mob) => {
-                            let data = mob ? mob.data : {number: 'Errror'}
-                            console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
-                           process.exit(230) 
-                        });
-                }, 60000);
-
-                if(result && result.status == 'success' && result.data.recipient){
-                  MessageModel.setRecipientSent(id, port)
-                   .then(() => {
-                       console.log('Sennnt!')
-                    clearTimeout(timeout)
-                    stopDev();
-                //    return
-                   })
-                   .catch(err => {
-                       return stopDev()
-                   })
-                 }
-             });
-            } else {
-                console.log('No Recipient!')
-                stopDev();
-            }
-    } catch(err){
-        console.log(err)
-    }
-    }
+// setTimeout(() => {
+//   gsmModem.close(() => process.exit);
+// }, 90000);

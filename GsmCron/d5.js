@@ -21,7 +21,7 @@ let options = {
   }
 
 let port;
-let no = 0;
+let no = 4;
 const GsmModem = serialportgsm.Modem();
 
 serialportgsm.list((err,result) => {
@@ -67,9 +67,9 @@ class GsmService{
         }
 
 
-        GsmModem.deleteAllSimMessages(callback => {
-            console.log('Messages Deleted!')
-        })
+        // GsmModem.deleteAllSimMessages(callback => {
+        //     console.log('Messages Deleted!')
+        // })
 
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
                 let timeout = setTimeout(() => {

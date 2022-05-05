@@ -63,13 +63,13 @@ class GsmService{
        if(recipient && port && !res) {
         if(!format_number(Mobtel)) {
             await MessageModel.setRecipientSent(id, port)
-           return process.exit();
+           return GsmModem.close(() => process.exit());
         }
 
 
-        GsmModem.deleteAllSimMessages(callback => {
-            console.log('Messages Deleted!')
-        })
+        // GsmModem.deleteAllSimMessages(callback => {
+        //     console.log('Messages Deleted!')
+        // })
 
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
                 let timeout = setTimeout(() => {
