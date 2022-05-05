@@ -43,7 +43,8 @@ class DeviceModel{
                     mobtel: mobtel, 
                     serial: serial, 
                     path: path,
-                    simpakId: sim.id
+                    simpakId: sim.id,
+                    status: 'Active'
                 })
                 .then(doc => {
                     sim.deviceId = doc.id;

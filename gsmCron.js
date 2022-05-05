@@ -211,21 +211,16 @@ GsmModem.on('open', (result) => {
 
             GsmModem.getModemSerial((result, err) => {
               let { data } = result;
-                   GsmModem.getOwnNumber((mob) => {
-                    //  console.log(num)
-                     let { number } = mob.data;
-                       DeviceModel.initDevice({serial: data.modemSerial, path: modem, mobtel: num })
-                       .then(() => {
-                        GsmService.processSms();
-                       })
-                       .catch(err => {
-                          console.log(err)
-                       })
-
-                   });
               if (err) {
                 console.log(`Error retrieving ModemSerial - ${err}`);
               }
+              DeviceModel.initDevice({serial: data.modemSerial, path: modem, mobtel: num })
+              .then(() => {
+               GsmService.processSms();
+              })
+              .catch(err => {
+                 console.log(err)
+              })
             });
       
             // Finally send an SMS
