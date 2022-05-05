@@ -38,13 +38,8 @@ function crun(){
 }
 
 function init(){
-<<<<<<< HEAD
 
 return dbs.getConnection(function(err, connection) {
-=======
-return dbs.getConnection(function(err, connection) {
-  console.log(err)
->>>>>>> 55385aaafba9d434ad78cd9dafa9679755a95f2d
       if(err) return console.log('DB Error!');
       console.log('Db Connected')
       crun();
