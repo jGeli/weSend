@@ -21,7 +21,7 @@ let options = {
   incomingSMSIndication: true,
   pin: '',
   customInitCommand: 'AT^CURC=0',
-  cnmiCommand:'AT+CNMI=2,1,0,2,1',
+  // cnmiCommand:'AT+CNMI=2,1,0,2,1',
 
   // logger: console
 }
@@ -29,6 +29,8 @@ let options = {
 
 let port;
 let no = 2;
+let num;
+
 
 serialportgsm.list((err,result) => {
   port = result[no] && result[no].path ;
@@ -40,7 +42,13 @@ serialportgsm.list((err,result) => {
 
 
 function stopDev(){
-        process.exit();
+        DeviceModel.stopDevice(port)
+        .then(() => {
+          process.exit();
+        })
+        .catch(err => {
+          console.log(err)
+        })
 }
 
 
@@ -75,25 +83,22 @@ class GsmService{
            return GsmModem.close(() => process.exit());
         }
 
-
-        // GsmModem.deleteAllSimMessages(callback => {
-        //     console.log('Messages Deleted!')
-        // })
-
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
                 console.log('Sending!')
-                GsmModem.getOwnNumber((mob) => {
-                  let data = mob ? mob.data : {number: 'Errror'}
-                  
                 let timeout = setTimeout(() => {
-                            SimpakModel.addErrorSent(data.number);
-                            console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
-                           process.exit(230) 
+                            console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${num}`)
+                            SimpakModel.addErrorSent(num)
+                            .then(a => {
+                              process.exit(230) 
+                            })
+                            .catch(err => {
+                              process.exit(230)
+                            })
                 }, 60000);
-                console.log(result)
+
                 if(result && result.status == 'success' && result.data.recipient){
                   console.log('Sennnt!')
-                  SimpakModel.addSuccessSent(data.number)
+                  SimpakModel.addSuccessSent(num)
                   MessageModel.setRecipientSent(id, port)
                    .then(() => {
                     clearTimeout(timeout)
@@ -106,7 +111,6 @@ class GsmService{
                        return stopDev()
                    })
                  }
-                });
              });
             } else {
                 console.log('No Recipient!')
@@ -125,7 +129,6 @@ class GsmService{
 
 GsmModem.on('open', (result) => {
   let { modem } = result.data;
-
   // now we initialize the GSM Modem
   GsmModem.initializeModem((msg, err) => {
     console.log(msg)
@@ -183,20 +186,16 @@ GsmModem.on('open', (result) => {
         }
       }, "PDU");
 
-
-
-
-      GsmModem.getModemSerial((result, err) => {
-        let { data } = result;
-             GsmModem.getOwnNumber((mob) => {
-               let { number } = mob.data;
-                 DeviceModel.initDevice({serial: data.modemSerial, path: modem, mobtel: number })
-             });
-        if (err) {
-          console.log(`Error retrieving ModemSerial - ${err}`);
+      GsmModem.getOwnNumber((mob) => {
+        let data = mob ? mob.data : {number: 'Errror'}
+        if(mob){
+          num = data.number
         }
-      });
 
+    });
+
+
+   
         
       // get info about stored Messages on SIM card
       GsmModem.checkSimMemory((result, err) => {
@@ -210,8 +209,21 @@ GsmModem.on('open', (result) => {
               console.log(`Sim Inbox Result: ${JSON.stringify(result)}`);
             }
 
+            GsmModem.getModemSerial((result, err) => {
+              let { data } = result;
+              if (err) {
+                console.log(`Error retrieving ModemSerial - ${err}`);
+              }
+              DeviceModel.initDevice({serial: data.modemSerial, path: modem, mobtel: num })
+              .then(() => {
+               GsmService.processSms();
+              })
+              .catch(err => {
+                 console.log(err)
+              })
+            });
+      
             // Finally send an SMS
-            GsmService.processSms();
           });
 
         }
@@ -223,13 +235,15 @@ GsmModem.on('open', (result) => {
   
   GsmModem.on('onMemoryFull', data => {
     //whole message data
-
-
+      GsmModem.deleteAllSimMessages(callback => {
+        console.log(callback)
+      })
 
   });
 
   GsmModem.on('close', data => {
     //whole message data
+    console.log(data)
     if(data){
       DeviceModel.stopDevice(data.modem)
     }
