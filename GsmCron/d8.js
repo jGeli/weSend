@@ -1,7 +1,9 @@
 const serialportgsm = require('serialport-gsm');
+const DeviceModel = require('../app/model/device.model');
+const SimpakModel = require('../app/model/simpak.model');
 
-const MessageModel = require('./app/services/message.model');
-const { format_number } = require('./app/utils/formatter');
+const MessageModel = require('../app/services/message.model');
+const { format_number } = require('../app/utils/formatter');
 var GsmModem = serialportgsm.Modem()
 
 let options = {
@@ -19,14 +21,16 @@ let options = {
   incomingSMSIndication: true,
   pin: '',
   customInitCommand: 'AT^CURC=0',
-  cnmiCommand:'AT+CNMI=2,1,0,2,1',
+  // cnmiCommand:'AT+CNMI=2,1,0,2,1',
 
-  logger: console
+  // logger: console
 }
 
 
 let port;
 let no = 7;
+let num;
+
 
 serialportgsm.list((err,result) => {
   port = result[no] && result[no].path ;
@@ -38,7 +42,13 @@ serialportgsm.list((err,result) => {
 
 
 function stopDev(){
-        process.exit()
+        DeviceModel.stopDevice(port)
+        .then(() => {
+          process.exit();
+        })
+        .catch(err => {
+          console.log(err)
+        })
 }
 
 
@@ -49,7 +59,9 @@ class GsmService{
        let recipient = await MessageModel.getUnprocessRecipient();
        if(!recipient) {
         console.log('No Recipient!')
-        return stopDev();
+        return setTimeout(() => {
+          stopDev();
+        }, 60000)
        }
        let { id, Mobtel, Message: { id: messageId, content, isFlash } } = recipient
        let res = await MessageModel.checkDuplicateSent(id, Mobtel, messageId);
@@ -71,24 +83,22 @@ class GsmService{
            return GsmModem.close(() => process.exit());
         }
 
-
-        // GsmModem.deleteAllSimMessages(callback => {
-        //     console.log('Messages Deleted!')
-        // })
-
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
                 console.log('Sending!')
                 let timeout = setTimeout(() => {
-                        GsmModem.getOwnNumber((mob) => {
-                            
-                            let data = mob ? mob.data : {number: 'Errror'}
-                            console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
-                           process.exit(230) 
-                        });
+                            console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${num}`)
+                            SimpakModel.addErrorSent(num)
+                            .then(a => {
+                              process.exit(230) 
+                            })
+                            .catch(err => {
+                              process.exit(230)
+                            })
                 }, 60000);
-                console.log(result)
+
                 if(result && result.status == 'success' && result.data.recipient){
                   console.log('Sennnt!')
+                  SimpakModel.addSuccessSent(num)
                   MessageModel.setRecipientSent(id, port)
                    .then(() => {
                     clearTimeout(timeout)
@@ -104,7 +114,10 @@ class GsmService{
              });
             } else {
                 console.log('No Recipient!')
-                stopDev();
+                return setTimeout(() => {
+                  stopDev();
+                }, 60000)
+                // stopDev();
             }
     } catch(err){
         console.log(err)
@@ -114,10 +127,11 @@ class GsmService{
 
 
 
-GsmModem.on('open', () => {
-
+GsmModem.on('open', (result) => {
+  let { modem } = result.data;
   // now we initialize the GSM Modem
   GsmModem.initializeModem((msg, err) => {
+    console.log(msg)
     if (err) {
       console.log(`Error Initializing Modem - ${err}`);
     } else {
@@ -128,19 +142,6 @@ GsmModem.on('open', () => {
           console.log(`Error Setting Modem Mode - ${err}`);
         } else {
 
-          // get the Network signal strength
-          GsmModem.getNetworkSignal((result, err) => {
-            if (err) {
-              console.log(`Error retrieving Signal Strength - ${err}`);
-            } 
-          });
-
-          // get Modem Serial Number
-          GsmModem.getModemSerial((result, err) => {
-            if (err) {
-              console.log(`Error retrieving ModemSerial - ${err}`);
-            }
-          });
 
           // execute a custom command - one line response normally is handled automatically
           GsmModem.executeCommand('AT^GETPORTMODE', (result, err) => {
@@ -185,6 +186,17 @@ GsmModem.on('open', () => {
         }
       }, "PDU");
 
+      GsmModem.getOwnNumber((mob) => {
+        let data = mob ? mob.data : {number: 'Errror'}
+        if(mob){
+          num = data.number
+        }
+
+    });
+
+
+   
+        
       // get info about stored Messages on SIM card
       GsmModem.checkSimMemory((result, err) => {
         if(err) {
@@ -197,8 +209,21 @@ GsmModem.on('open', () => {
               console.log(`Sim Inbox Result: ${JSON.stringify(result)}`);
             }
 
+            GsmModem.getModemSerial((result, err) => {
+              let { data } = result;
+              if (err) {
+                console.log(`Error retrieving ModemSerial - ${err}`);
+              }
+              DeviceModel.initDevice({serial: data.modemSerial, path: modem, mobtel: num })
+              .then(() => {
+               GsmService.processSms();
+              })
+              .catch(err => {
+                 console.log(err)
+              })
+            });
+      
             // Finally send an SMS
-            GsmService.processSms();
           });
 
         }
@@ -210,16 +235,20 @@ GsmModem.on('open', () => {
   
   GsmModem.on('onMemoryFull', data => {
     //whole message data
-    GsmModem.deleteAllSimMessages(callback => {
-        console.log('Delete All')
-    });
+      GsmModem.deleteAllSimMessages(callback => {
+        console.log(callback)
+      })
+
   });
 
   GsmModem.on('close', data => {
     //whole message data
+    console.log(data)
+    if(data){
+      DeviceModel.stopDevice(data.modem)
+    }
     console.log(`Event Close: ` + JSON.stringify(data));
   });
-
 });
 
 
