@@ -1,7 +1,8 @@
+const dbs = require('./app/configs/smsdb.config');
 const serialportgsm = require('serialport-gsm');
 const MessageModel = require('./app/services/message.model');
-const { format_number } = require('./app/utils/formatter');
-
+const DeviceModel = require('./app/model/device.model');
+const SimpakModel = require('./app/model/simpak.model');
 
 var gsmModem = serialportgsm.Modem()
 let options = {
@@ -21,7 +22,7 @@ let options = {
   customInitCommand: 'AT^CURC=0',
   // cnmiCommand:'AT+CNMI=2,1,0,2,1',
 
-  logger: console
+  // logger: console
 }
 
 
@@ -33,8 +34,8 @@ let phone = {
 }
 
 // Port is opened
-gsmModem.on('open', () => {
-
+gsmModem.on('open', (result) => {
+  let { modem } = result.data;
   // now we initialize the GSM Modem
   gsmModem.initializeModem((msg, err) => {
     if (err) {
@@ -104,6 +105,20 @@ gsmModem.on('open', () => {
         }
       }, phone.mode);
 
+
+      gsmModem.getModemSerial((result, err) => {
+        let { data } = result;
+             gsmModem.getOwnNumber((mob) => {
+               let { number } = mob.data;
+                 DeviceModel.initDevice({serial: data.modemSerial, path: modem, mobtel: number })
+             });
+        if (err) {
+          console.log(`Error retrieving ModemSerial - ${err}`);
+        }
+      });
+
+
+
       // get info about stored Messages on SIM card
       gsmModem.checkSimMemory((result, err) => {
         if(err) {
@@ -121,19 +136,53 @@ gsmModem.on('open', () => {
 
             // Finally send an SMS
             // GsmService.processSms();
+            let timeout = setTimeout(() => {
+              gsmModem.getOwnNumber((mob) => {
+                  let data = mob ? mob.data : {number: 'Errror'}
+                  SimpakModel.addErrorSent(data.number);
+                  console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
+                 process.exit(230) 
+              });
+      }, 60000);
+
+
             const message = `Hello ${phone.name}, Try again....This message was sent`;
             gsmModem.sendSMS(phone.number, message, true, (result) => {
-              console.log(`Callback Send: Message ID: ${result.data.messageId},` +
-                  `${result.data.response} To: ${result.data.recipient} ${JSON.stringify(result)}`);
+              if(result && result.status == 'success' && result.data.recipient){
+                console.log('Sennnt!')
+                gsmModem.getOwnNumber((mob) => {
+                  let data = mob ? mob.data : {number: 'Errror'}
+
+                  SimpakModel.addSuccessSent(data.number)
+                  .then(() => {
+                   clearTimeout(timeout)
+                  return
+                  })
+                  .catch(err => {
+                      console.log(err)
+                      console.log(err)
+                      // return stopDev()
+                  })
+                
+              });
+              
+               }
             });
                 // processSms();
           });
+
+          
 
         }
       });
 
     }
   });
+
+
+  gsmModem.deleteAllSimMessages(cb =>{
+    console.log(cb)
+  })
 
   gsmModem.on('onNewMessageIndicator', data => {
     //indicator for new message only (sender, timeSent)
@@ -162,7 +211,15 @@ gsmModem.on('open', () => {
 
   gsmModem.on('close', data => {
     //whole message data
-    console.log(`Event Close: ` + JSON.stringify(data));
+    console.log(data)
+    if(data){
+      DeviceModel.stopDevice(data.modem)
+    }
+    // gsmModem.getModemSerial((result, err) => {
+    //   let { data } = result;
+    //   
+    //   console.log(`Event Close: ` + JSON.stringify(data));
+    // });
   });
 
 });
@@ -177,11 +234,24 @@ let no = 0;
 
 
 
-serialportgsm.list((err,result) => {
-        
-    port = result[no] && result[no].path ;
-    if(port){
-    gsmModem.open(port, options)
+
+
+serialportgsm.list((err, result) => {
+        // console.log(result[no].path)
+        const res = result[no] && result[no].path;
+        port = res
+        console.log(res)
+    // 
+    // port = 
+    console.log(port)
+    if(res){
+      dbs.getConnection(function(err, connection) {
+        if(err) return console.log('DB Error!');
+        console.log('Db Connected')
+        // crun();
+       gsmModem.open(res, options)
+
+    });
     }
 });
 

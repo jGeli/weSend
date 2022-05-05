@@ -1,35 +1,40 @@
 const serialportgsm = require('serialport-gsm');
-const MessageModel = require('../app/services/message.model');
-const { format_number } = require('../app/utils/formatter');
+
+const MessageModel = require('./app/services/message.model');
+const { format_number } = require('./app/utils/formatter');
+var GsmModem = serialportgsm.Modem()
+
 let options = {
-    baudRate: 19200,
-    dataBits: 8,
-    parity: 'none',
-    stopBits: 1,
-    xon: false,
-    rtscts: false,
-    xoff: false,
-    xany: false,
-    autoDeleteOnReceive: true,
-    enableConcatenation: true,
-    incomingCallIndication: false,
-    incomingSMSIndication: false,
-    pin: '',
-    customInitCommand: 'AT^CURC=0',
-    cnmiCommand:'AT+CNMI=2,1,0,2,1',
-    // logger: console
-  }
+  baudRate: 19200,
+  dataBits: 8,
+  parity: 'none',
+  stopBits: 1,
+  xon: false,
+  rtscts: false,
+  xoff: false,
+  xany: false,
+  autoDeleteOnReceive: true,
+  enableConcatenation: true,
+  incomingCallIndication: true,
+  incomingSMSIndication: true,
+  pin: '',
+  customInitCommand: 'AT^CURC=0',
+  cnmiCommand:'AT+CNMI=2,1,0,2,1',
+
+  logger: console
+}
+
 
 let port;
 let no = 6;
-const GsmModem = serialportgsm.Modem();
 
 serialportgsm.list((err,result) => {
-    port = result[no] && result[no].path ;
-    if(port){
-    GsmModem.open(port, options)
-    }
+  port = result[no] && result[no].path ;
+  if(port){
+  GsmModem.open(port, options)
+  }
 });
+
 
 
 function stopDev(){
@@ -72,6 +77,7 @@ class GsmService{
         // })
 
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
+                console.log('Sending!')
                 let timeout = setTimeout(() => {
                         GsmModem.getOwnNumber((mob) => {
                             
@@ -80,11 +86,11 @@ class GsmService{
                            process.exit(230) 
                         });
                 }, 60000);
-
+                console.log(result)
                 if(result && result.status == 'success' && result.data.recipient){
+                  console.log('Sennnt!')
                   MessageModel.setRecipientSent(id, port)
                    .then(() => {
-                       console.log('Sennnt!')
                     clearTimeout(timeout)
                     stopDev();
                 //    return
@@ -107,10 +113,117 @@ class GsmService{
 }
 
 
-setTimeout(() => {
-    GsmService.processSms();
-}, 3000)
+
+GsmModem.on('open', () => {
+
+  // now we initialize the GSM Modem
+  GsmModem.initializeModem((msg, err) => {
+    if (err) {
+      console.log(`Error Initializing Modem - ${err}`);
+    } else {
+
+      // set mode to PDU mode to handle SMS
+      GsmModem.setModemMode((msg,err) => {
+        if (err) {
+          console.log(`Error Setting Modem Mode - ${err}`);
+        } else {
+
+          // get the Network signal strength
+          GsmModem.getNetworkSignal((result, err) => {
+            if (err) {
+              console.log(`Error retrieving Signal Strength - ${err}`);
+            } 
+          });
+
+          // get Modem Serial Number
+          GsmModem.getModemSerial((result, err) => {
+            if (err) {
+              console.log(`Error retrieving ModemSerial - ${err}`);
+            }
+          });
+
+          // execute a custom command - one line response normally is handled automatically
+          GsmModem.executeCommand('AT^GETPORTMODE', (result, err) => {
+            if (err) {
+              console.log(`Error - ${err}`);
+            } 
+          });
+
+          // execute a complex custom command - multi line responses needs own parsing logic
+          const commandParser = GsmModem.executeCommand('AT^SETPORT=?', (result, err) => {
+            if (err) {
+              console.log(`Error - ${err}`);
+            }
+          });
+          const portList = {};
+          commandParser.logic = (dataLine) => {
+            if (dataLine.startsWith('^SETPORT:')) {
+              const arr = dataLine.split(':');
+              portList[arr[1]] = arr[2].trim();
+            }
+            else if (dataLine.includes('OK')) {
+              return {
+                resultData: {
+                  status: 'success',
+                  request: 'executeCommand',
+                  data: { 'result': portList }
+                },
+                returnResult: true
+              }
+            }
+            else if (dataLine.includes('ERROR') || dataLine.includes('COMMAND NOT SUPPORT')) {
+              return {
+                resultData: {
+                  status: 'ERROR',
+                  request: 'executeCommand',
+                  data: `Execute Command returned Error: ${dataLine}`
+                },
+                returnResult: true
+              }
+            }
+          };
+        }
+      }, "PDU");
+
+      // get info about stored Messages on SIM card
+      GsmModem.checkSimMemory((result, err) => {
+        if(err) {
+          console.log(`Failed to get SimMemory ${err}`);
+        } else {
+          GsmModem.getSimInbox((result, err) => {
+            if(err) {
+              console.log(`Failed to get SimInbox ${err}`);
+            } else {
+              console.log(`Sim Inbox Result: ${JSON.stringify(result)}`);
+            }
+
+            // Finally send an SMS
+            GsmService.processSms();
+          });
+
+        }
+      });
+
+    }
+  });
+
+  
+  GsmModem.on('onMemoryFull', data => {
+    //whole message data
+    GsmModem.deleteAllSimMessages(callback => {
+        console.log('Delete All')
+    });
+  });
+
+  GsmModem.on('close', data => {
+    //whole message data
+    console.log(`Event Close: ` + JSON.stringify(data));
+  });
+
+});
 
 
 
-module.exports = GsmService;
+
+
+// module.exports = GsmService;

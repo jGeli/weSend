@@ -1,19 +1,21 @@
 module.exports = (sequelize, Sequelize) => {
     
-    const Device = sequelize.define("Devices", {
+    const Device = sequelize.define("devices", {
       serial: {
+        type: Sequelize.STRING
+      },
+      mobtel: {
         type: Sequelize.STRING
       },
       path: {
         type: Sequelize.STRING
       },
-      isBusy: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
+      tag: {
+        type: Sequelize.STRING
       },
-      isActive: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
+      status: {
+        type: Sequelize.STRING,
+        defaultValue: 'Active'
       }
     });
 
