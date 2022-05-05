@@ -21,9 +21,9 @@ let options = {
   incomingSMSIndication: true,
   pin: '',
   customInitCommand: 'AT^CURC=0',
-  // cnmiCommand:'AT+CNMI=2,1,0,2,1',
+  cnmiCommand:'AT+CNMI=2,1,0,2,1',
 
-  // logger: console
+  logger: console
 }
 
 
@@ -82,9 +82,10 @@ class GsmService{
             await MessageModel.setRecipientSent(id, port)
            return GsmModem.close(() => process.exit());
         }
-
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
                 console.log('Sending!')
+                console.log(Mobtel)
+                console.log(content)
                 let timeout = setTimeout(() => {
                             console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${num}`)
                             SimpakModel.addErrorSent(num)

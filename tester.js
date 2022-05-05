@@ -20,10 +20,11 @@ let options = {
   incomingSMSIndication: false,
   pin: '',
   customInitCommand: 'AT^CURC=0',
-  // cnmiCommand:'AT+CNMI=2,1,0,2,1',
+  cnmiCommand:'AT+CNMI=2,1,0,2,1',
 
-  // logger: console
+  logger: console
 }
+let num;
 
 
 let phone = {
@@ -106,18 +107,8 @@ gsmModem.on('open', (result) => {
       }, phone.mode);
 
 
-      gsmModem.getModemSerial((result, err) => {
-        let { data } = result;
-             gsmModem.getOwnNumber((mob) => {
-               let { number } = mob.data;
-                 DeviceModel.initDevice({serial: data.modemSerial, path: modem, mobtel: number })
-             });
-        if (err) {
-          console.log(`Error retrieving ModemSerial - ${err}`);
-        }
-      });
 
-      let num = 
+
       gsmModem.getOwnNumber((mob) => {
         let data = mob ? mob.data : {number: 'Errror'}
         if(mob){
@@ -126,6 +117,14 @@ gsmModem.on('open', (result) => {
 
     });
 
+
+    gsmModem.getModemSerial((result, err) => {
+      let { data } = result;
+     DeviceModel.initDevice({serial: data.modemSerial, path: modem, mobtel: num })
+      if (err) {
+        console.log(`Error retrieving ModemSerial - ${err}`);
+      }
+    });
 
       // get info about stored Messages on SIM card
       gsmModem.checkSimMemory((result, err) => {
@@ -236,7 +235,9 @@ serialportgsm.list((err, result) => {
         if(err) return console.log('DB Error!');
         console.log('Db Connected')
         // crun();
-       gsmModem.open(res, options)
+        console.log(res)
+        console.log(options)
+      return gsmModem.open(res, options)
 
     });
     }

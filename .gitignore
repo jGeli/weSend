@@ -4,3 +4,4 @@ client
 app/configs/*
 client/node_modules
 GsmCron/.env
+config
