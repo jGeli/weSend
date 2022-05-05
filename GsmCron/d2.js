@@ -1,9 +1,9 @@
 const serialportgsm = require('serialport-gsm');
-const DeviceModel = require('./app/model/device.model');
-const SimpakModel = require('./app/model/simpak.model');
+const DeviceModel = require('../app/model/device.model');
+const SimpakModel = require('../app/model/simpak.model');
 
-const MessageModel = require('./app/services/message.model');
-const { format_number } = require('./app/utils/formatter');
+const MessageModel = require('../app/services/message.model');
+const { format_number } = require('../app/utils/formatter');
 var GsmModem = serialportgsm.Modem()
 
 let options = {
