@@ -1,6 +1,0 @@
-node_modules
-.env
-client
-app/configs/*
-client/node_modules
-GsmCron/.env
