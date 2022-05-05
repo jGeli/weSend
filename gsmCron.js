@@ -94,7 +94,7 @@ class GsmService{
                             .catch(err => {
                               process.exit(230)
                             })
-                }, 10000);
+                }, 60000);
 
                 if(result && result.status == 'success' && result.data.recipient){
                   console.log('Sennnt!')
