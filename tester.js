@@ -1,5 +1,7 @@
+const dbs = require('./app/configs/smsdb.config');
 const serialportgsm = require('serialport-gsm');
 const MessageModel = require('./app/services/message.model');
+const DeviceModel = require('./app/model/device.model');
 const { format_number } = require('./app/utils/formatter');
 
 
@@ -21,7 +23,7 @@ let options = {
   customInitCommand: 'AT^CURC=0',
   // cnmiCommand:'AT+CNMI=2,1,0,2,1',
 
-  logger: console
+  // logger: console
 }
 
 
@@ -33,8 +35,8 @@ let phone = {
 }
 
 // Port is opened
-gsmModem.on('open', () => {
-
+gsmModem.on('open', (result) => {
+  let { modem } = result.data;
   // now we initialize the GSM Modem
   gsmModem.initializeModem((msg, err) => {
     if (err) {
@@ -104,6 +106,39 @@ gsmModem.on('open', () => {
         }
       }, phone.mode);
 
+
+
+
+
+
+
+      gsmModem.getModemSerial((result, err) => {
+        let { data } = result;
+        // console.log(data.modemSerial)
+        console.log('get Modem Derial')
+             gsmModem.getOwnNumber((mob) => {
+               let { number } = mob.data;
+                console.log(mob)
+                 DeviceModel.initDevice({serial: data.modemSerial, path: modem, mobtel: number })
+             });
+        // console.log(result)
+        // GsmModem.getOwnNumber((mob) => {
+                        
+        //   let data = mob ? mob.data : {number: 'Errror'}
+        //   DeviceModel.initDevice({
+        //     description
+        //   })
+      // });
+
+
+
+        if (err) {
+          console.log(`Error retrieving ModemSerial - ${err}`);
+        }
+      });
+
+
+
       // get info about stored Messages on SIM card
       gsmModem.checkSimMemory((result, err) => {
         if(err) {
@@ -129,11 +164,18 @@ gsmModem.on('open', () => {
                 // processSms();
           });
 
+          
+
         }
       });
 
     }
   });
+
+
+  gsmModem.deleteAllSimMessages(cb =>{
+    console.log(cb)
+  })
 
   gsmModem.on('onNewMessageIndicator', data => {
     //indicator for new message only (sender, timeSent)
@@ -177,11 +219,24 @@ let no = 0;
 
 
 
-serialportgsm.list((err,result) => {
-        
-    port = result[no] && result[no].path ;
-    if(port){
-    gsmModem.open(port, options)
+
+
+serialportgsm.list((err, result) => {
+        // console.log(result[no].path)
+        const res = result[no] && result[no].path;
+        port = res
+        console.log(res)
+    // 
+    // port = 
+    console.log(port)
+    if(res){
+      dbs.getConnection(function(err, connection) {
+        if(err) return console.log('DB Error!');
+        console.log('Db Connected')
+        // crun();
+       gsmModem.open(res, options)
+
+    });
     }
 });
 

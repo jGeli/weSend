@@ -1,5 +1,5 @@
 const serialportgsm = require('serialport-gsm');
-
+const DeviceModel = require('./app/model/device.model');
 const MessageModel = require('./app/services/message.model');
 const { format_number } = require('./app/utils/formatter');
 var GsmModem = serialportgsm.Modem()
@@ -21,7 +21,7 @@ let options = {
   customInitCommand: 'AT^CURC=0',
   cnmiCommand:'AT+CNMI=2,1,0,2,1',
 
-  logger: console
+  // logger: console
 }
 
 
@@ -38,7 +38,7 @@ serialportgsm.list((err,result) => {
 
 
 function stopDev(){
-        process.exit()
+        process.exit();
 }
 
 
@@ -118,6 +118,7 @@ GsmModem.on('open', () => {
 
   // now we initialize the GSM Modem
   GsmModem.initializeModem((msg, err) => {
+    console.log(msg)
     if (err) {
       console.log(`Error Initializing Modem - ${err}`);
     } else {
@@ -135,15 +136,10 @@ GsmModem.on('open', () => {
             } 
           });
 
-          // get Modem Serial Number
-          GsmModem.getModemSerial((result, err) => {
-            if (err) {
-              console.log(`Error retrieving ModemSerial - ${err}`);
-            }
-          });
+     
 
           // execute a custom command - one line response normally is handled automatically
-          GsmModem.executeCommand('AT^GETPORTMODE', (result, err) => {
+          GDsmModem.executeCommand('AT^GETPORTMODE', (result, err) => {
             if (err) {
               console.log(`Error - ${err}`);
             } 
@@ -185,6 +181,26 @@ GsmModem.on('open', () => {
         }
       }, "PDU");
 
+
+      
+
+           // get Modem Serial Number
+          GsmModem.getModemSerial((result, err) => {
+            console.log('get Modem Derial')
+            console.log(result)
+            // GsmModem.getOwnNumber((mob) => {
+                            
+            //   let data = mob ? mob.data : {number: 'Errror'}
+            //   DeviceModel.initDevice({
+            //     description
+            //   })
+          // });
+            if (err) {
+              console.log(`Error retrieving ModemSerial - ${err}`);
+            }
+          });
+
+
       // get info about stored Messages on SIM card
       GsmModem.checkSimMemory((result, err) => {
         if(err) {
@@ -210,16 +226,17 @@ GsmModem.on('open', () => {
   
   GsmModem.on('onMemoryFull', data => {
     //whole message data
-    GsmModem.deleteAllSimMessages(callback => {
-        console.log('Delete All')
-    });
+
+
+
   });
 
   GsmModem.on('close', data => {
     //whole message data
+    DeviceModel.stopDevice()
+    console.log(data)
     console.log(`Event Close: ` + JSON.stringify(data));
   });
-
 });
 
 

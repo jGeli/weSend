@@ -23,11 +23,16 @@ db.sequelize = sequelize;
 
 //Barangay Models
 db.device = require("./device.model.js")(sequelize, Sequelize);
+db.event_socket = require('./event_socket.model.js')(sequelize, Sequelize);
+db.simpak = require('./simpak.model.js')(sequelize, Sequelize);
+
 db.messages = require("./message.model.js")(sequelize, Sequelize);
 db.recipients = require("./recipient.model.js")(sequelize, Sequelize);
 db.mobtels = require('./mobtel.model.js')(sequelize, Sequelize);
 
 
+db.device.belongsTo(db.simpak, {  constraints: false})
+db.simpak.belongsTo(db.device, {  constraints: false})
 
 
 db.messages.hasMany(db.recipients, { as: 'Mobtels', foreignKey: 'messageId',

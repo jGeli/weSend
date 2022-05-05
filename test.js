@@ -1,7 +1,6 @@
 const { spawn } = require("child_process");
 const db = require('./app/models');
 const dbs = require('./app/configs/smsdb.config');
-// const MessageModel = require("./app/services/message.model");
 const serialportgsm = require('serialport-gsm');
 
 let port;
@@ -39,13 +38,8 @@ function crun(){
 }
 
 function init(){
-<<<<<<< HEAD
 
 return dbs.getConnection(function(err, connection) {
-=======
-return dbs.getConnection(function(err, connection) {
-  console.log(err)
->>>>>>> b28c6ec536d5f8abd8bc7178251f49a09910bc26
       if(err) return console.log('DB Error!');
       console.log('Db Connected')
       crun();

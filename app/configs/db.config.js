@@ -2,7 +2,7 @@ require('dotenv').config();
 
 module.exports = {
     HOST: process.env.HOST,
-    USER: process.env.SMSUSER,
+    USER: process.env.USER,
     PASSWORD: process.env.PASSWORD,
     DB: process.env.DB,
     Port: 3306,
