@@ -28,7 +28,7 @@ let options = {
 
 let phone = {
   name: "My-Name",
-  number: "+639957235985",
+  number: "+639774461641",
   numberSelf: "+49XXXXXX",
   mode: "PDU"
 }
@@ -117,6 +117,14 @@ gsmModem.on('open', (result) => {
         }
       });
 
+      let num = 
+      gsmModem.getOwnNumber((mob) => {
+        let data = mob ? mob.data : {number: 'Errror'}
+        if(mob){
+          num = data.number
+        }
+
+    });
 
 
       // get info about stored Messages on SIM card
@@ -126,24 +134,17 @@ gsmModem.on('open', (result) => {
         } else {
           console.log(`Sim Memory Result: ${JSON.stringify(result)}`);
 
-          // read the whole SIM card inbox
-          gsmModem.getSimInbox((result, err) => {
-            if(err) {
-              console.log(`Failed to get SimInbox ${err}`);
-            } else {
-              console.log(`Sim Inbox Result: ${JSON.stringify(result)}`);
-            }
-
-            // Finally send an SMS
-            // GsmService.processSms();
             let timeout = setTimeout(() => {
-              gsmModem.getOwnNumber((mob) => {
-                  let data = mob ? mob.data : {number: 'Errror'}
-                  SimpakModel.addErrorSent(data.number);
-                  console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${data.number}`)
-                 process.exit(230) 
-              });
-      }, 60000);
+                // console.log(num)
+                console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${num}`)
+                SimpakModel.addErrorSent(num)
+                .then(a => {
+                  process.exit(230) 
+                })
+                .catch(err => {
+                  process.exit(230)
+                })
+      }, 10000);
 
 
             const message = `Hello ${phone.name}, Try again....This message was sent`;
@@ -168,21 +169,11 @@ gsmModem.on('open', (result) => {
               
                }
             });
-                // processSms();
-          });
-
-          
-
         }
       });
-
     }
   });
 
-
-  gsmModem.deleteAllSimMessages(cb =>{
-    console.log(cb)
-  })
 
   gsmModem.on('onNewMessageIndicator', data => {
     //indicator for new message only (sender, timeSent)
@@ -240,10 +231,6 @@ serialportgsm.list((err, result) => {
         // console.log(result[no].path)
         const res = result[no] && result[no].path;
         port = res
-        console.log(res)
-    // 
-    // port = 
-    console.log(port)
     if(res){
       dbs.getConnection(function(err, connection) {
         if(err) return console.log('DB Error!');

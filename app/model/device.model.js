@@ -11,7 +11,7 @@ class DeviceModel{
     static async initDevice({description, mobtel, serial, path}){
             let sim = await Simpak.findOne({where: { mobtel: mobtel} })
                         .then(async doc => {
-                            console.log(doc)
+                            // console.log(doc)
                             if(!doc){
                              return await Simpak.create({
                                     mobtel: mobtel
@@ -21,7 +21,7 @@ class DeviceModel{
                         });
 
 
-            console.log(sim);
+            // console.log(sim);
            let device = await Devices.findOne({where: { serial: serial }});
           
 
