@@ -22,6 +22,9 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 //Barangay Models
+db.account = require("./serviceAccount.model")(sequelize, Sequelize);
+
+
 db.device = require("./device.model.js")(sequelize, Sequelize);
 db.event_socket = require('./event_socket.model.js')(sequelize, Sequelize);
 db.simpak = require('./simpak.model.js')(sequelize, Sequelize);
