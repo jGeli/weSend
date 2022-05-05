@@ -89,19 +89,17 @@ class MessageModel{
         });
 
         if(!msg) return null;
+        await Messages.update({ isProcessing: true}, { where: { id: msg.id } })
+
         let { Mobtels } = msg;
         if(Mobtels && Mobtels.length == 0) {
-            await Messages.update({  isCompleted: true }, { where: { id: msg.id } })
+            await Messages.update({  isCompleted: true, isProcessing: false }, { where: { id: msg.id } })
             return null;
         }
         
-        await Messages.update({ isProcessing: true}, { where: { id: msg.id } })
         
 
-        let message = await Recipient.findOne({ where: {[Op.and]: [{isDeleted: false},{isSent: false}]   }, 
-        include: [  { model: Messages,  as: 'Message', required: false}],
-        });
-        return message
+        return Mobtels[0]
     }
 
     static async setMessageProcessing(id, com){
