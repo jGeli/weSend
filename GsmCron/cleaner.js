@@ -1,4 +1,26 @@
 const MessageModel = require("../app/services/message.model");
+const CleanerModel = require('../app/model/cleaner.model');
+
+
+
+
+
+
+
+
+const handleSmsReach = async () => {
+    let accs = await CleanerModel.getAccounts();
+        accs && accs.forEach(a => {
+            CleanerModel.setAccountSmsReach(a.id)
+        });
+}
+
+
+
+
+
+
+
 
 function init(){
 
@@ -11,6 +33,7 @@ function init(){
                 MessageModel.setMessageComplete(id);
             }
         })
+            handleSmsReach()
 }, 30000)
 
 }
