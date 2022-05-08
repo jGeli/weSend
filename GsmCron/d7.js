@@ -244,4 +244,4 @@ setTimeout(() => {
     console.log('Default Closing Modem')
     GsmModem.close(process.exit())
   }
-}, 120000);
+}, 150000);
