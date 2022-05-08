@@ -30,7 +30,7 @@ function crun(){
         return setTimeout(() => {
           console.log('Trigger Error Restart!')
           crun();
-        }, 60000)
+        }, 120000)
       } else {
         crun();
       }

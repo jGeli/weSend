@@ -30,6 +30,7 @@ class DeviceModel{
                 return await Devices.update({ description: description, mobtel: mobtel, serial: serial, path: path, status: 'Active', simpakId: sim.id  }, { returning: true, where: { id: device.id } })
                     .then(doc => {
                         sim.deviceId = device.id;
+                        sim.status = 'Active';
                         sim.save();
                         return device;
                     })
@@ -48,6 +49,7 @@ class DeviceModel{
                 })
                 .then(doc => {
                     sim.deviceId = doc.id;
+                    sim.status = 'Active';
                     sim.save();
                     return doc;
                 }) 

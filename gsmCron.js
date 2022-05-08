@@ -35,16 +35,19 @@ let num;
 serialportgsm.list((err,result) => {
   port = result[no] && result[no].path ;
   if(port){
+    console.log('Myda Port!')
   GsmModem.open(port, options)
+  } else {
+    process.exit(230)
   }
 });
 
 
 
-function stopDev(){
+function stopDev(code){
         DeviceModel.stopDevice(port)
         .then(() => {
-          process.exit();
+          process.exit(code ? code : null);
         })
         .catch(err => {
           console.log(err)
@@ -59,9 +62,7 @@ class GsmService{
        let recipient = await MessageModel.getUnprocessRecipient();
        if(!recipient) {
         console.log('No Recipient!')
-        return setTimeout(() => {
-          stopDev();
-        }, 60000)
+        return  stopDev(230); 
        }
        let { id, Mobtel, Message: { id: messageId, content, isFlash } } = recipient
        let res = await MessageModel.checkDuplicateSent(id, Mobtel, messageId);
@@ -84,8 +85,6 @@ class GsmService{
         }
             GsmModem.sendSMS(format_number(Mobtel), content, isFlash, (result) => {
                 console.log('Sending!')
-                console.log(Mobtel)
-                console.log(content)
                 let timeout = setTimeout(() => {
                             console.log(`Errroooooorrr heeeeeeeeeerrreeeeeeeeeeeeee:  ----->>>>>>>>>    ${num}`)
                             SimpakModel.addErrorSent(num)
@@ -95,7 +94,7 @@ class GsmService{
                             .catch(err => {
                               process.exit(230)
                             })
-                }, 60000);
+                }, 12000);
 
                 if(result && result.status == 'success' && result.data.recipient){
                   console.log('Sennnt!')
@@ -115,10 +114,7 @@ class GsmService{
              });
             } else {
                 console.log('No Recipient!')
-                return setTimeout(() => {
-                  stopDev();
-                }, 60000)
-                // stopDev();
+                return stopDev(230);
             }
     } catch(err){
         console.log(err)
@@ -132,7 +128,6 @@ GsmModem.on('open', (result) => {
   let { modem } = result.data;
   // now we initialize the GSM Modem
   GsmModem.initializeModem((msg, err) => {
-    console.log(msg)
     if (err) {
       console.log(`Error Initializing Modem - ${err}`);
     } else {
@@ -142,7 +137,6 @@ GsmModem.on('open', (result) => {
         if (err) {
           console.log(`Error Setting Modem Mode - ${err}`);
         } else {
-
 
           // execute a custom command - one line response normally is handled automatically
           GsmModem.executeCommand('AT^GETPORTMODE', (result, err) => {
@@ -203,12 +197,10 @@ GsmModem.on('open', (result) => {
         if(err) {
           console.log(`Failed to get SimMemory ${err}`);
         } else {
-          GsmModem.getSimInbox((result, err) => {
-            if(err) {
-              console.log(`Failed to get SimInbox ${err}`);
-            } else {
-              console.log(`Sim Inbox Result: ${JSON.stringify(result)}`);
-            }
+
+            GsmModem.deleteAllSimMessages(callback => {
+                console.log(callback)
+              })
 
             GsmModem.getModemSerial((result, err) => {
               let { data } = result;
@@ -223,37 +215,31 @@ GsmModem.on('open', (result) => {
                  console.log(err)
               })
             });
-      
+          }
             // Finally send an SMS
           });
-
-        }
-      });
-
     }
   });
-
   
   GsmModem.on('onMemoryFull', data => {
     //whole message data
       GsmModem.deleteAllSimMessages(callback => {
         console.log(callback)
       })
-
   });
 
   GsmModem.on('close', data => {
-    //whole message data
-    console.log(data)
     if(data){
       DeviceModel.stopDevice(data.modem)
     }
-    console.log(`Event Close: ` + JSON.stringify(data));
   });
 });
 
 
 
-
-
-// module.exports = GsmService;
+setTimeout(() => {
+  if(port){
+    console.log('Default Closing Modem')
+    GsmModem.close(process.exit())
+  }
+}, 90000);

@@ -13,37 +13,37 @@ serialportgsm.list((err,result) => {
 function crun(){
     const ls = spawn("node", ["d5.js"]);
     ls.stdout.on("data", (data) => {
-    console.log(`stdout: ${data}`);
-    });
-    
-    ls.stderr.on("data", (data) => {
-    console.error(`stderr: ${data}`);
-    // crun();
-    });
-    
-    ls.on("close", (code) => {
-
-      console.log(`child process exited with code ${code}`);
-      if(code == 230){
-        console.log("Tunaay  na errror")
-
-        return setTimeout(() => {
-          console.log('Trigger Error Restart!')
+      console.log(`stdout: ${data}`);
+      });
+      
+      ls.stderr.on("data", (data) => {
+      console.error(`stderr: ${data}`);
+      // crun();
+      });
+      
+      ls.on("close", (code) => {
+  
+        console.log(`child process exited with code ${code}`);
+        if(code == 230){
+          console.log("Tunaay  na errror")
+  
+          return setTimeout(() => {
+            console.log('Trigger Error Restart!')
+            crun();
+          }, 120000)
+        } else {
           crun();
-        }, 60000)
-      } else {
+        }
+      });
+  }
+  
+  function init(){
+  
+  return dbs.getConnection(function(err, connection) {
+        if(err) return console.log('DB Error!');
+        console.log('Db Connected')
         crun();
-      }
     });
-}
-
-function init(){
-
-return dbs.getConnection(function(err, connection) {
-      if(err) return console.log('DB Error!');
-      console.log('Db Connected')
-      crun();
-  });
-}
-
-init();
+  }
+  
+  init();
