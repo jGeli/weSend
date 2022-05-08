@@ -33,8 +33,9 @@ let num;
 
 
 serialportgsm.list((err,result) => {
-  port = result[no] && result[no].path ;
-  if(port && port.path && String(port.vendorId).toLowerCase() == String('1a86').toLowerCase()){
+  let gsm = result[no] && result[no]; 
+  port = gsm.path
+  if(gsm && gsm.path && String(gsm.vendorId).toLowerCase() == String('1a86').toLowerCase()){
     console.log('Myda Port!')
   GsmModem.open(port, options)
   } else {
