@@ -21,9 +21,9 @@ let options = {
   incomingSMSIndication: true,
   pin: '',
   customInitCommand: 'AT^CURC=0',
-  cnmiCommand:'AT+CNMI=2,1,0,2,1',
+  // cnmiCommand:'AT+CNMI=2,1,0,2,1',
 
-  // logger: console
+  logger: console
 }
 
 
@@ -33,9 +33,9 @@ let num;
 
 
 serialportgsm.list((err,result) => {
-  console.log(result)
-  port = result[no] && result[no].path ;
-  if(port && port.path && String(port.vendorId).toLowerCase() == String('1a86').toLowerCase()){
+  let gsm = result[no] && result[no]; 
+  port = gsm.path
+  if(gsm && gsm.path && String(gsm.vendorId).toLowerCase() == String('1a86').toLowerCase()){
     console.log('Myda Port!')
   GsmModem.open(port, options)
   } else {
@@ -96,7 +96,7 @@ class GsmService{
                             .catch(err => {
                               process.exit(230)
                             })
-                }, 12000);
+                }, 120000);
 
                 if(result && result.status == 'success' && result.data.recipient){
                   console.log('Sennnt!')

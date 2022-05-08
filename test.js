@@ -1,14 +1,6 @@
 const { spawn } = require("child_process");
 const db = require('./app/models');
 const dbs = require('./app/configs/smsdb.config');
-const serialportgsm = require('serialport-gsm');
-
-let port;
-let no = 0;
-
-serialportgsm.list((err,result) => {
-        port = result[no] && result[no].path ;
-});
 
 function crun(){
     const ls = spawn("node", ["gsmCron.js"]);
@@ -41,8 +33,13 @@ function init(){
 
 return dbs.getConnection(function(err, connection) {
       if(err) return console.log('DB Error!');
-      console.log('Db Connected')
+      console.log('Db 2 Connected')
+      db.sequelize.sync(
+        // {force: true}
+        ).then(() => { 
+          console.log('Db 1 Connected')
       crun();
+      });
   });
 }
 
