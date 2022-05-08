@@ -33,6 +33,7 @@ let num;
 
 
 serialportgsm.list((err,result) => {
+  console.log(result)
   port = result[no] && result[no].path ;
   if(port){
     console.log('Myda Port!')
