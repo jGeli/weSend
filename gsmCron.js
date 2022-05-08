@@ -39,6 +39,7 @@ serialportgsm.list((err,result) => {
     console.log('Myda Port!')
   GsmModem.open(port, options)
   } else {
+    console.log('No Gsm Port!')
     process.exit(230)
   }
 });
