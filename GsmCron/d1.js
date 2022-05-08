@@ -32,7 +32,6 @@ let no = 0;
 let num;
 
 serialportgsm.list((err,result) => {
-  console.log(result)
   port = result[no] && result[no].path ;
   if(port && port.path && String(port.vendorId).toLowerCase() == String('1a86').toLowerCase()){
     console.log('Myda Port!')
