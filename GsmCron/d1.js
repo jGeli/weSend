@@ -32,8 +32,8 @@ let no = 0;
 let num;
 
 serialportgsm.list((err,result) => {
-  let gsm = result[no] && result[no]; 
-  port = gsm.path
+  let gsm = result && result[no]; 
+  port = gsm && gsm.path
   if(gsm && gsm.path && String(gsm.vendorId).toLowerCase() == String('1a86').toLowerCase()){
     console.log('Myda Port!')
   GsmModem.open(port, options)
@@ -243,4 +243,4 @@ setTimeout(() => {
     console.log('Default Closing Modem')
     GsmModem.close(process.exit())
   }
-}, 90000);
+}, 120000);
